@@ -1,0 +1,12 @@
+51d80bdcf12d13f10aa81345172fb598 *DESCRIPTION
+61ac715dd50cefd5b2706d8cf35d5d2a *NAMESPACE
+ee297c8b944bf150aeb3f7423916bdee *R/iSpline.R
+1c5a6a45c0a1df8130e50897d288c3df *R/ibs.R
+80e7252298e679bad2223b781efe944d *R/mSpline.R
+3b60574d941eac99149726e167c24f33 *R/predict.R
+1aa4b2b55be9e042b5c361d004435abc *R/splines-package.R
+558bb50280b572e025f30a5f1bc637a9 *man/iSpline.Rd
+1d30f7fa26a2ebf0f414282a9138d9f3 *man/ibs.Rd
+864d7b6957d01a4c9a3e72a0e71a5f60 *man/mSpline.Rd
+818a3db4cc8dafd8c1c17c3466aaa0af *man/predict.Rd
+a16dae20fe2d82ce40526aca8dc0064a *man/splines2.Rd
