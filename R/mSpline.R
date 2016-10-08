@@ -20,19 +20,20 @@
 
 ##' M-Spline Basis for Polynomial Splines
 ##'
-##' This function generates the M-spline basis matrix for a polynomial spline.
+##' This function generates the monotone regression spline or simply called
+##' M-spline basis matrix for a polynomial spline.
 ##'
 ##' It is an implementation of the close form M-spline basis based on
-##' relationship between M-spline basis and B-spline basis.  Internally, it
-##' calls \code{\link[splines]{bs}} and generates a basis matrix for
-##' representing the family of piecewise polynomials with the specified
-##' interior knots and degree, evaluated at the values of \code{x}.
-##' When "Boundary.knots" are set inside \code{range(x)},
-##' \code{\link[splines]{bs}} uses a "pivot" inside the respective boundary
-##' knot which is important for derivative evaluation.
+##' relationship between M-spline basis and B-spline basis.  In fact, M-spline
+##' basis is a rescaled version of B-spline basis. Internally, it calls function
+##' \code{\link{bSpline}} and generates a basis matrix for representing the
+##' family of piecewise polynomials with the specified interior knots and
+##' degree, evaluated at the values of \code{x}.
 ##'
-##' @param x The predictor variable.  Missing values are allowed but ignored for
-##' output.
+##' @usage mSpline(x, df = NULL, knots = NULL, degree = 3, intercept = FALSE,
+##'         Boundary.knots = range(x), ...)
+##' @param x The predictor variable.  Missing values are allowed and will be
+##' returned as they were.
 ##' @param df Degrees of freedom.  One can specify \code{df} rather than
 ##' \code{knots}, then the function chooses "df - degree"
 ##' (minus one if there is an intercept) knots at suitable quantiles of \code{x}
@@ -43,8 +44,9 @@
 ##' polynomial regression.  Typical values are the mean or median
 ##' for one knot, quantiles for more knots.  See also
 ##' \code{Boundary.knots}.
-##' @param degree Degree of the piecewise polynomial. The default value is 3
-##' for cubic splines.
+##' @param degree Non-negative integer degree of the piecewise polynomial. The
+##' default value is 3 for cubic splines. Zero degree is allowed for piecewise
+##' constant basis.
 ##' @param intercept If \code{TRUE}, an intercept is included in the basis;
 ##' Default is \code{FALSE}.
 ##' @param Boundary.knots Boundary points at which to anchor the M-spline basis.
@@ -60,6 +62,8 @@
 ##' Ramsay, J. O. (1988). Monotone regression splines in action.
 ##' \emph{Statistical science}, 3(4), 425--441.
 ##' @examples
+##' ## Example given in the reference paper by Ramsay (1988)
+##' library(graphics)
 ##' x <- seq(0, 1, by = .01)
 ##' knots <- c(0.3, 0.5, 0.6)
 ##' mMat <- mSpline(x, knots = knots, degree = 2, intercept = TRUE)
@@ -67,15 +71,16 @@
 ##' abline(v = knots, lty = 2, col = "gray")
 ##' @seealso
 ##' \code{\link{predict.mSpline}} for evaluation at given (new) values;
-##' \code{\link{iSpline}} for I-spline basis.
-##' @importFrom splines bs
+##' \code{\link{bSpline}} for B-spline basis;
+##' \code{\link{iSpline}} for I-spline basis;
+##' \code{\link{cSpline}} for C-spline basis.
 ##' @export
 mSpline <- function(x, df = NULL, knots = NULL, degree = 3, intercept = FALSE,
-                   Boundary.knots = range(x), ...) {
+                    Boundary.knots = range(x), ...) {
 
     ## B-spline basis for inputs
-    bsOut <- splines::bs(x = x, df = df, knots = knots, degree = degree,
-                        intercept = intercept, Boundary.knots = Boundary.knots)
+    bsOut <- bSpline(x = x, df = df, knots = knots, degree = degree,
+                     intercept = intercept, Boundary.knots = Boundary.knots)
 
     ## update input
     degree <- attr(bsOut, "degree")

@@ -5,11 +5,11 @@
 \title{I-Spline Basis for Polynomial Splines}
 \usage{
 iSpline(x, df = NULL, knots = NULL, degree = 3, intercept = FALSE,
-  Boundary.knots = range(x), ...)
+        Boundary.knots = range(x), ...)
 }
 \arguments{
-\item{x}{The predictor variable.  Missing values are allowed but ignored for
-output.}
+\item{x}{The predictor variable.  Missing values are allowed and will be
+returned as they were.}
 
 \item{df}{Degrees of freedom.  One can specify \code{df} rather than
 \code{knots}, then the function chooses "df - degree"
@@ -23,8 +23,11 @@ polynomial regression.  Typical values are the mean or median
 for one knot, quantiles for more knots.  See also
 \code{Boundary.knots}.}
 
-\item{degree}{Degree of the piecewise polynomial. The default value is 3
-for cubic splines.}
+\item{degree}{Non-negative integer degree of the piecewise polynomial. The
+default value is 3 for cubic splines. Note that the degree of I-spline is
+defined to be the degree of the associated M-spline instead of actual
+polynomial degree. In other words, I-spline basis of degree 2 is defined as
+the integral of associated M-spline basis of degree 2.}
 
 \item{intercept}{If \code{TRUE}, an intercept is included in the basis;
 Default is \code{FALSE}.}
@@ -48,13 +51,16 @@ This function generates the I-spline (integral of M-spline) basis matrix
 for a polynomial spline.
 }
 \details{
-It is an implementation of the close form I-spline basis based
-on recursion relation.  Internally, it calls \code{\link{mSpline}} and
-generates a basis matrix for representing the family of piecewise
-polynomials and their corresponding integrals with the specified interior
-knots and degree, evaluated at the values of \code{x}.
+It is an implementation of the close form I-spline basis based on the
+recursion formula of B-spline basis.  Internally, it calls
+\code{\link{mSpline}} and \code{\link{bSpline}}, and generates a basis
+matrix for representing the family of piecewise polynomials and their
+corresponding integrals with the specified interior knots and degree,
+evaluated at the values of \code{x}.
 }
 \examples{
+## Example given in the reference paper by Ramsay (1988)
+library(graphics)
 x <- seq(0, 1, by = .01)
 knots <- c(0.3, 0.5, 0.6)
 iMat <- iSpline(x, knots = knots, degree = 2, intercept = TRUE)
@@ -67,7 +73,9 @@ Ramsay, J. O. (1988). Monotone regression splines in action.
 }
 \seealso{
 \code{\link{predict.iSpline}} for evaluation at given (new) values;
-\code{\link{mSpline}} for M-spine basis;
+\code{\link{mSpline}} for M-spline basis;
+\code{\link{cSpline}} for C-spline basis;
+\code{\link{bSpline}} for B-spline basis;
 \code{\link{ibs}} for integral of B-spline basis.
 }
 
