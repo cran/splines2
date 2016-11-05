@@ -1,12 +1,12 @@
 Package: splines2
 Title: Regression Spline Functions and Classes Too
-Version: 0.2.1
-Date: 2016-10-7
+Version: 0.2.2
+Date: 2016-11-05
 Authors@R: c(
     person(given = "Wenjie", family = "Wang",
            email = "wenjie.2.wang@uconn.edu",
            role = c("aut", "cre")),
-    person(given = "Jun", family = "Yan", role = "ctb")
+    person(given = "Jun", family = "Yan", role = "aut")
     )
 Description: A complementary package on splines providing functions
     constructing B-splines, monotone splines (M-splines) and its integral
@@ -21,9 +21,9 @@ URL: https://github.com/wenjie2wang/splines2
 BugReports: https://github.com/wenjie2wang/splines2/issues
 RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2016-10-07 16:25:20 UTC; wenjie
+Packaged: 2016-11-05 19:48:51 UTC; wenjie
 Author: Wenjie Wang [aut, cre],
-  Jun Yan [ctb]
+  Jun Yan [aut]
 Maintainer: Wenjie Wang <wenjie.2.wang@uconn.edu>
 Repository: CRAN
-Date/Publication: 2016-10-08 00:27:39
+Date/Publication: 2016-11-05 23:59:30
