@@ -1,7 +1,7 @@
 context("Testing deriv methods")
 
 x <- c(seq.int(0, 1, 0.1), NA)
-knots <- c(0.3, 0.5, 0.6)
+knots <- c(0.3, NA, 0.5, 0.6, NA)
 
 
 test_that("test deriv methods for B-splines related", {
@@ -80,4 +80,11 @@ test_that("test deriv methods for M-splines related", {
     expect_equivalent(ms4Mat, deriv(isMat, 5))
     expect_equivalent(ms4Mat, deriv(csMat, 6))
     expect_equivalent(ms4Mat, tmp <- deriv(tmp))
+    ## simple test for scale = TRUE
+    csMat <- cSpline(x, knots = knots, degree = 4)
+    expect_output(str(deriv(csMat)),
+                  "matrix [1:12, 1:7]", fixed = TRUE)
+    expect_equivalent(deriv(csMat, 2), deriv(deriv(csMat)))
+    expect_equivalent(deriv(csMat, 3), deriv(deriv(csMat, 2)))
+    expect_equivalent(deriv(csMat, 3), deriv(deriv(deriv(csMat))))
 })

@@ -104,14 +104,8 @@ dbs <- function(x, derivs = 1L, df = NULL, knots = NULL, degree = 3L,
         stop("'degree' must be a nonnegative integer.")
 
     ## sort and remove possible NA's in internal knots if exist
-    if (length(knots)) {
-        knots <- sort(knots)
-        tmp <- is.na(knots)
-        if (any(tmp)) {
-            omit <- seq_along(knots)[tmp]
-            knots <- knots[- omit]
-        }
-    }
+    if (length(knots))
+        knots <- sort.int(knots)
 
     ## take care of possible NA's in `x`
     nax <- is.na(x)
@@ -188,6 +182,9 @@ dbs <- function(x, derivs = 1L, df = NULL, knots = NULL, degree = 3L,
             facVec[idx[1L]] * tmpMat[, 1L, drop = FALSE] -
                 facVec[idx[2L]] * tmpMat[, 2L, drop = FALSE]
         })
+        ## recover dimension after sapply
+        if (! is.matrix(dMat))
+            dMat <- matrix(dMat, nrow = 1L)
     }
 
     ## take care of intercept

@@ -1,3 +1,18 @@
+# CHANGES IN splines2 VERSION 0.2.5
+
+## MINOR CHANGES
+
+* Added more tests and increased code coverage.
+
+## BUG FIXES
+
+* Fixed evaluation of derivatives of M-splines for a single value. Thanks Ina
+  Jazic for reporting the bug and providing possible fix.
+
+* Fixed `deriv.cSpline` method for derivatives of order greater than two when
+  `scale = TRUE`.
+
+
 # CHANGES IN splines2 VERSION 0.2.4
 
 ## NEW FEATURES
@@ -22,7 +37,7 @@
 
 ## BUG FIXES
 
-* Fixed the generation of splines basis without any internal knot.
+* Fixed the generation of splines without any internal knot.
 
 
 # CHANGES IN splines2 VERSION 0.2.3
