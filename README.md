@@ -1,6 +1,6 @@
 # splines2
 
-The R package **splines2** is a complementary package on splines providing
+The R package **splines2** is a supplementary package on splines providing
 functions constructing B-splines, integral of B-splines, monotone splines
 (M-splines) and its integral (I-splines), convex splines (C-splines), and their
 derivatives of given order. Piecewise constant basis is allowed for B-spline and
@@ -29,10 +29,11 @@ install.packages("splines2")
 
 The latest version of package is under development at [GitHub][7] in branch
 'dev'.  If it is able to pass the building check by Travis CI, you may consider
-installing it with the help of **devtools** by
+installing it with the help of **remotes** by
 
 ```R
-devtools::install_github("wenjie2wang/splines2", ref = "dev")
+if (! require(remotes)) install.packages("remotes")
+remotes::install_github("wenjie2wang/splines2", ref = "dev")
 ```
 
 
@@ -64,7 +65,7 @@ FITNESS FOR A PARTICULAR PURPOSE.
 [6]: https://travis-ci.org/wenjie2wang/splines2.svg?branch=dev
 [7]: https://github.com/wenjie2wang/splines2
 [8]: http://wenjie-stat.me/splines2/
-[9]: http://wenjie-stat.me/splines2/splines2.pdf
+[9]: http://wenjie-stat.me/splines2/splines2-manual.pdf
 [10]: http://www.gnu.org/licenses/
 [codecov]: https://codecov.io/gh/wenjie2wang/splines2
 [codecov-master]: https://codecov.io/gh/wenjie2wang/splines2/branch/master/graph/badge.svg
