@@ -1,131 +1,125 @@
-################################################################################
 ##
-##   R package splines2 by Wenjie Wang and Jun Yan
-##   Copyright (C) 2016-2018
+## R package splines2 by Wenjie Wang and Jun Yan
+## Copyright (C) 2016-2020
 ##
-##   This file is part of the R package splines2.
+## This file is part of the R package splines2.
 ##
-##   The R package splines2 is free software: You can redistribute it and/or
-##   modify it under the terms of the GNU General Public License as published
-##   by the Free Software Foundation, either version 3 of the License, or
-##   any later version (at your option). See the GNU General Public License
-##   at <http://www.gnu.org/licenses/> for details.
+## The R package splines2 is free software: You can redistribute it and/or
+## modify it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or any later
+## version (at your option). See the GNU General Public License at
+## <https://www.gnu.org/licenses/> for details.
 ##
-##   The R package splines2 is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+## The R package splines2 is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ##
-################################################################################
 
-
-##' M-Spline Basis for Polynomial Splines and its Derivatives
+##' M-Spline Basis for Polynomial Splines
 ##'
-##' This function generates the monotone regression spline (or simply called
-##' M-spline) basis matrix for a polynomial spline or its derivatives of given
-##' order.
+##' Generates the basis matrix of the regression spline called M-spline or the
+##' corresponding derivatives of given order.  For monotone regression,
+##' \code{\link{iSpline}} should be used instead of M-splines.
 ##'
-##' It is an implementation of the close form M-spline basis based on
-##' relationship between M-spline basis and B-spline basis.  In fact, M-spline
-##' basis is a rescaled version of B-spline basis. Internally, it calls function
-##' \code{\link{bSpline}} and generates a basis matrix for representing the
-##' family of piecewise polynomials with the specified interior knots and
-##' degree, evaluated at the values of \code{x}.
+##' It is an implementation of the close form M-spline basis based on the
+##' recursion formula given by Ramsay (1988).
 ##'
-##' @usage
-##' mSpline(x, df = NULL, knots = NULL, degree = 3L, intercept = FALSE,
-##'         Boundary.knots = range(x, na.rm = TRUE), derivs = 0L, ...)
+##' @inheritParams bSpline
 ##'
-##' @param x The predictor variable.  Missing values are allowed and will be
-##'     returned as they were.
-##' @param df Degrees of freedom.  One can specify \code{df} rather than
-##'     \code{knots}, then the function chooses "df - degree" (minus one if
-##'     there is an intercept) knots at suitable quantiles of \code{x} (which
-##'     will ignore missing values).  The default, \code{NULL}, corresponds to
-##'     no inner knots, i.e., "degree - intercept".
-##' @param knots The internal breakpoints that define the spline.  The default
-##'     is \code{NULL}, which results in a basis for ordinary polynomial
-##'     regression.  Typical values are the mean or median for one knot,
-##'     quantiles for more knots.  See also \code{Boundary.knots}.
-##' @param degree Non-negative integer degree of the piecewise polynomial. The
-##'     default value is 3 for cubic splines. Zero degree is allowed for
-##'     piecewise constant basis.
-##' @param intercept If \code{TRUE}, an intercept is included in the basis;
-##'     Default is \code{FALSE}.
-##' @param Boundary.knots Boundary points at which to anchor the M-spline basis.
-##'     By default, they are the range of the non-\code{NA} data.  If both
-##'     \code{knots} and \code{Boundary.knots} are supplied, the basis
-##'     parameters do not depend on \code{x}. Data can extend beyond
-##'     \code{Boundary.knots}.
 ##' @param derivs A non-negative integer specifying the order of derivatives of
 ##'     M-splines. The default value is \code{0L} for M-spline bases.
-##' @param ... Optional arguments for future usage.
 ##'
-##' @return A matrix of dimension \code{length(x)} by
-##' \code{df = degree + length(knots)} (plus one if intercept is included).
-##' Attributes that correspond to the arguments specified are returned
-##' for usage of other functions in this package.
+##' @inherit bSpline return
+##'
 ##' @references
 ##' Ramsay, J. O. (1988). Monotone regression splines in action.
 ##' \emph{Statistical science}, 3(4), 425--441.
-##' @examples
-##' ## Example given in the reference paper by Ramsay (1988)
-##' library(splines2)
-##' x <- seq.int(0, 1, 0.01)
-##' knots <- c(0.3, 0.5, 0.6)
-##' msMat <- mSpline(x, knots = knots, degree = 2, intercept = TRUE)
 ##'
-##' library(graphics)
-##' matplot(x, msMat, type = "l", ylab = "M-spline basis")
-##' abline(v = knots, lty = 2, col = "gray")
+##' @example inst/examples/ex-mSpline.R
 ##'
-##' ## derivatives of M-splines
-##' dmsMat <- mSpline(x, knots = knots, degree = 2,
-##'                   intercept = TRUE, derivs = 1)
-##' ## or using the 'deriv' method
-##' dmsMat1 <- deriv(msMat)
-##' stopifnot(all.equal(dmsMat, dmsMat1, check.attributes = FALSE))
 ##' @seealso
-##' \code{\link{predict.mSpline}} for evaluation at given (new) values;
-##' \code{\link{deriv.mSpline}} for derivative method;
 ##' \code{\link{bSpline}} for B-splines;
 ##' \code{\link{iSpline}} for I-splines;
 ##' \code{\link{cSpline}} for C-splines.
+##'
 ##' @export
-mSpline <- function(x, df = NULL, knots = NULL, degree = 3L, intercept = FALSE,
-                    Boundary.knots = range(x, na.rm = TRUE), derivs = 0L, ...)
+mSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
+                    intercept = FALSE, Boundary.knots = NULL,
+                    derivs = 0L, ...)
 {
-    ## check order of derivative
-    if (! missing(derivs)) {
-        derivs <- as.integer(derivs)
-        if (derivs < 0L)
-            stop("'derivs' has to be a non-negative integer.")
+    ## check inputs
+    if ((derivs <- as.integer(derivs)) < 0) {
+        stop("'derivs' must be a non-negative integer.")
     }
-
-    bsOut <- if (derivs) {
-                 dbs(x = x, derivs = derivs, df = df, knots = knots,
-                     degree = degree, intercept = intercept,
-                     Boundary.knots = Boundary.knots, ...)
-             } else {
-                 bSpline(x = x, df = df, knots = knots,
-                         degree = degree, intercept = intercept,
-                         Boundary.knots = Boundary.knots, ...)
-             }
-
-    ## update input
-    ord <- attr(bsOut, "degree") + 1L
-    knots <- attr(bsOut, "knots")
-    bKnots <- attr(bsOut, "Boundary.knots")
-
-    ## define knot sequence
-    aKnots <- sort(c(rep(bKnots, ord), knots))
-
-    ## transformation from B-splines to M-splines
-    denom <- diff(aKnots, lag = ord)
-    transCoef <- ifelse(denom > 0, ord / denom, 0)
-    if (! intercept)
-        transCoef <- transCoef[- 1L]
-    msOut <- rep(transCoef, each = length(x)) * bsOut
-    attr(msOut, "derivs") <- derivs
-    class(msOut) <- c("matrix", "mSpline")
-    msOut
+    if ((degree <- as.integer(degree)) < 0)
+        stop("'degree' must be a nonnegative integer.")
+    if (is.null(df)) {
+        df <- 0L
+    } else {
+        df <- as.integer(df)
+        if (df < 0) {
+            stop("'df' must be a nonnegative integer.")
+        }
+    }
+    knots <- null2num0(knots)
+    Boundary.knots <- null2num0(Boundary.knots)
+    ## take care of possible NA's in `x`
+    nax <- is.na(x)
+    if (all(nax)) {
+        stop("The 'x' cannot be all NA's!")
+    }
+    ## remove NA's in x
+    xx <- if (nas <- any(nax)) {
+              x[! nax]
+          } else {
+              x
+          }
+    out <- if (derivs > 0) {
+               ## call the engine function
+               rcpp_mSpline_derivative(
+                   x = xx,
+                   derivs = derivs,
+                   df = df,
+                   degree = degree,
+                   internal_knots = knots,
+                   boundary_knots = Boundary.knots,
+                   complete_basis = intercept
+               )
+           } else {
+               ## call the engine function
+               rcpp_mSpline_basis(
+                   x = xx,
+                   df = df,
+                   degree = degree,
+                   internal_knots = knots,
+                   boundary_knots = Boundary.knots,
+                   complete_basis = intercept
+               )
+           }
+    ## throw warning if any x is outside of the boundary
+    b_knots <- attr(out, "Boundary.knots")
+    if (any((xx < b_knots[1L]) | (xx > b_knots[2L]))) {
+        warning(wrapMessages(
+            "Some 'x' values beyond boundary knots",
+            "may cause ill-conditioned bases."
+        ))
+    }
+    ## keep NA's as is
+    if (nas) {
+        nmat <- matrix(NA, length(nax), ncol(out))
+        nmat[! nax, ] <- out
+        saved_attr <- attributes(out)
+        saved_attr$dim[1] <- length(nax)
+        out <- nmat
+        attributes(out) <- saved_attr
+        attr(out, "x") <- x
+    }
+    ## add dimnames for consistency
+    name_x <- names(x)
+    if (! is.null(name_x)) {
+        row.names(out) <- name_x
+    }
+    ## add class
+    class(out) <- c("matrix", "mSpline")
+    out
 }

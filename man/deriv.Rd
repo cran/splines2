@@ -8,7 +8,8 @@
 \alias{deriv.mSpline}
 \alias{deriv.iSpline}
 \alias{deriv.cSpline}
-\title{Derivative of Splines}
+\alias{deriv.bernsteinPoly}
+\title{Derivatives of Spline Bases}
 \usage{
 \method{deriv}{bSpline2}(expr, derivs = 1L, ...)
 
@@ -21,6 +22,8 @@
 \method{deriv}{iSpline}(expr, derivs = 1L, ...)
 
 \method{deriv}{cSpline}(expr, derivs = 1L, ...)
+
+\method{deriv}{bernsteinPoly}(expr, derivs = 1L, ...)
 }
 \arguments{
 \item{expr}{Objects of class \code{bSpline2}, \code{ibs}, \code{dbs},
@@ -29,27 +32,25 @@
 \item{derivs}{A positive integer specifying the order of derivatives. By
 default, it is \code{1L} for the first derivative.}
 
-\item{...}{Other arguments for further usage.}
+\item{...}{Other arguments that are not used.}
 }
 \value{
-A matrix of dimension \code{length(x)} by
-\code{df = degree + length(knots)} (plus one if intercept is included).
-Attributes that correspond to the arguments specified are returned
-for usage for other function in this package.
+A numeric matrix of the same dimension with the input \code{expr}.
 }
 \description{
-\code{deriv} methods that obtain derivative of given order of B-splines,
-M-spline, I-splines, and C-splines, etc. At knots, the derivative is defined
-to be the right derivative. By default, the function returns the first
-derivative. For derivatives of order greater than one, the nested call such
-as \code{deriv(deriv(expr))} is supported but not recommended. For a better
-performance, argument \code{derivs} should be specified instead.
+Returns derivatives of given order for the spline bases.
 }
 \details{
-The function is designed for most of the objects generated from this
-package. It internally extracts necessary information about the input spline
-basis matrix from its attributes. So the function will not work if some
-attribute is not available.
+At knots, the derivative is defined to be the right derivative. By default,
+the function returns the first derivatives.  For derivatives of order
+greater than one, the nested call such as \code{deriv(deriv(expr))} is
+supported but not recommended.  For a better performance, argument
+\code{derivs} should be specified instead.
+
+This function is designed for objects produced by this package.  It
+internally extracts necessary specification about the spline/polynomial
+basis matrix from its attributes. Therefore, the function will not work if
+the key attributions are not available after some operations.
 }
 \examples{
 library(splines2)
@@ -69,30 +70,23 @@ d2Mat1 <- deriv(bsMat)
 d2Mat2 <- deriv(ibsMat, derivs = 2L)
 ## nested calls are supported but not recommended
 d2Mat3 <- deriv(deriv(ibsMat))
-stopifnot(all.equal(d2Mat1, d2Mat2, d2Mat3, check.attributes = FALSE))
+stopifnot(all.equal(d2Mat1, d2Mat2, check.attributes = FALSE))
+stopifnot(all.equal(d2Mat2, d2Mat3, check.attributes = FALSE))
 
 ## C-splines, I-splines, M-splines and the derivatives
-csMat <- cSpline(x, knots = knots, scale = FALSE)
-isMat <- iSpline(x, knots = knots)
+csMat <- cSpline(x, knots = knots, intercept = TRUE, scale = FALSE)
+isMat <- iSpline(x, knots = knots, intercept = TRUE)
 stopifnot(all.equal(isMat, deriv(csMat), check.attributes = FALSE))
 
-msMat <- mSpline(x, knots = knots)
-stopifnot(all.equal(msMat, deriv(isMat), deriv(csMat, 2),
-                    deriv(deriv(csMat)), check.attributes = FALSE))
+msMat <- mSpline(x, knots = knots, intercept = TRUE)
+stopifnot(all.equal(msMat, deriv(isMat), check.attributes = FALSE))
+stopifnot(all.equal(msMat, deriv(csMat, 2), check.attributes = FALSE))
+stopifnot(all.equal(msMat, deriv(deriv(csMat)), check.attributes = FALSE))
 
-dmsMat <- mSpline(x, knots = knots, derivs = 1)
-stopifnot(all.equal(dmsMat, deriv(msMat), deriv(isMat, 2),
-                    deriv(deriv(isMat)), deriv(csMat, 3),
-                    deriv(deriv(deriv(csMat))), check.attributes = FALSE))
-}
-\references{
-De Boor, Carl. (1978). \emph{A practical guide to splines}.
-Vol. 27. New York: Springer-Verlag.
-}
-\seealso{
-\code{\link{bSpline}} for B-splines;
-\code{\link{ibs}} for integral of B-splines;
-\code{\link{mSpline}} for M-splines;
-\code{\link{iSpline}} for I-splines;
-\code{\link{cSpline}} for C-splines.
+dmsMat <- mSpline(x, knots = knots, intercept = TRUE, derivs = 1)
+stopifnot(all.equal(dmsMat, deriv(msMat), check.attributes = FALSE))
+stopifnot(all.equal(dmsMat, deriv(isMat, 2), check.attributes = FALSE))
+stopifnot(all.equal(dmsMat, deriv(deriv(isMat)), check.attributes = FALSE))
+stopifnot(all.equal(dmsMat, deriv(csMat, 3), check.attributes = FALSE))
+stopifnot(all.equal(dmsMat, deriv(deriv(deriv(csMat))), check.attributes = FALSE))
 }

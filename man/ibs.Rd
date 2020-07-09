@@ -2,71 +2,75 @@
 % Please edit documentation in R/ibs.R
 \name{ibs}
 \alias{ibs}
-\title{Integral of B-Spline Basis for Polynomial Splines}
+\title{Integrals of B-Spline Basis}
 \usage{
-ibs(x, df = NULL, knots = NULL, degree = 3, intercept = FALSE,
-    Boundary.knots = range(x, na.rm = TRUE), ...)
+ibs(
+  x,
+  df = NULL,
+  knots = NULL,
+  degree = 3,
+  intercept = FALSE,
+  Boundary.knots = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{The predictor variable.  Missing values are allowed and will be
-returned as they were.}
+returned as they are.}
 
-\item{df}{Degrees of freedom of the B-spline basis to be integrated.  One
-can specify \code{df} rather than \code{knots}, then the function
-chooses "df - degree" (minus one if there is an intercept) knots at
-suitable quantiles of \code{x} (which will ignore missing values).  The
-default, \code{NULL}, corresponds to no inner knots, i.e.,
-"degree - intercept".}
+\item{df}{Degree of freedom that equals to the column number of returned
+matrix.  One can specify \code{df} rather than \code{knots}, then the
+function chooses \code{df - degree - as.integer(intercept)} internal
+knots at suitable quantiles of \code{x} ignoring missing values and
+those \code{x} outside of the boundary.  If internal knots are specified
+via \code{knots}, the specified \code{df} will be ignored.}
 
-\item{knots}{The internal breakpoints that define the B-spline basis to be
-integrated.  The default is \code{NULL}, which results in a basis for
-ordinary polynomial regression.  Typical values are the mean or median
-for one knot, quantiles for more knots.  See also \code{Boundary.knots}.}
+\item{knots}{The internal breakpoints that define the spline.  The default
+is \code{NULL}, which results in a basis for ordinary polynomial
+regression.  Typical values are the mean or median for one knot,
+quantiles for more knots.}
 
-\item{degree}{Non-negative integer degree of the piecewise polynomial to be
-integrated. The default value is 3 for the integral of cubic B-splines.}
+\item{degree}{A non-negative integer specifying the degree of the piecewise
+polynomial. The default value is 3 for cubic splines. Zero degree is
+allowed for piece-wise constant bases.}
 
-\item{intercept}{If \code{TRUE}, an intercept is included in the basis;
-Default is \code{FALSE}.}
+\item{intercept}{If \code{TRUE}, the complete basis matrix will be returned.
+Otherwise, the first basis will be excluded from the output.}
 
-\item{Boundary.knots}{Boundary points at which to anchor the B-spline basis
-to be integrated. By default, they are the range of the non-\code{NA}
-data.  If both \code{knots} and \code{Boundary.knots} are supplied, the
-basis parameters do not depend on \code{x}. Data can extend beyond
+\item{Boundary.knots}{Boundary points at which to anchor the spline basis.
+By default, they are the range of the non-\code{NA} data.  If both
+\code{knots} and \code{Boundary.knots} are supplied, the basis
+parameters do not depend on \code{x}. Data can extend beyond
 \code{Boundary.knots}.}
 
-\item{...}{Optional arguments for future usage.}
+\item{...}{Optional arguments that are not used.}
 }
 \value{
-A matrix of dimension \code{length(x)} by
-\code{df = degree + length(knots)} (plus on if intercept is included).
-Attributes that correspond to the arguments specified are returned
-for usage of other functions in this package.
+A numeric matrix with \code{length(x)} rows and \code{df} columns if
+    \code{df} is specified or \code{length(knots) + degree +
+    as.integer(intercept)} columns if \code{knots} are specified instead.
+    Attributes that correspond to the arguments specified are returned for
+    usage of other functions in this package.
 }
 \description{
-This function generates the integral of B-spline basis matrix
-for a polynomial spline. The arguments are exactly the same with function
-\code{\link[splines]{bs}} in package \code{splines}.
+Generates the integrals of B-spline basis matrix.
 }
 \details{
-It is an implementation of the close form integral of B-spline basis based
-on recursion relation.  Internally, it calls \code{\link{bSpline}} and
-generates a basis matrix for representing the family of piecewise
-polynomials and their corresponding integrals with the specified interior
-knots and degree, evaluated at the values of \code{x}.
+The implementation is based on the close form recursion formula.
 }
 \examples{
 library(splines2)
+
 x <- seq.int(0, 1, 0.01)
 knots <- c(0.2, 0.4, 0.7, 0.9)
 ibsMat <- ibs(x, knots = knots, degree = 1, intercept = TRUE)
 
 ## the B-spline bases integrated by function bSpline (same arguments)
 bsMat0 <- bSpline(x, knots = knots, degree = 1, intercept = TRUE)
-## or by function deriv (recommended) that directly extracts the existing
-## result from the attribute of ibsMat and thus is much more efficient.
+
+## or by the deriv method
 bsMat <- deriv(ibsMat)
-stopifnot(all.equal(bsMat0, bsMat, check.attributes = FALSE)) # equivalent
+stopifnot(all.equal(bsMat0, bsMat, check.attributes = FALSE))
 
 ## plot B-spline basis with their corresponding integrals
 library(graphics)
@@ -82,8 +86,6 @@ De Boor, Carl. (1978). \emph{A practical guide to splines}.
 Vol. 27. New York: Springer-Verlag.
 }
 \seealso{
-\code{\link{predict.ibs}} for evaluation at given (new) values;
-\code{\link{deriv.ibs}} for derivative method.
 \code{\link{bSpline}} for B-splines;
 \code{\link{dbs}} for derivatives of B-splines;
 }
