@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2020
+## Copyright (C) 2016-2021
 ##
 ## This file is part of the R package splines2.
 ##
@@ -53,6 +53,12 @@ print.cSpline <- function(x, ...) {
 
 ##' @export
 print.bernsteinPoly <- function(x, ...) {
+    print.default(tidyAttr(x, ...))
+    invisible(x)
+}
+
+##' @export
+print.naturalSpline <- function(x, ...) {
     print.default(tidyAttr(x, ...))
     invisible(x)
 }

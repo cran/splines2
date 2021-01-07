@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2020
+## Copyright (C) 2016-2021
 ##
 ## This file is part of the R package splines2.
 ##
@@ -15,19 +15,20 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ##
 
-##' Derivatives of B-Spline Basis
+##' Derivatives of B-Splines
 ##'
 ##' Produces the derivatives of given order of B-splines.
 ##'
 ##' This function provides a more user-friendly interface and a more consistent
 ##' handling for \code{NA}'s than \code{splines::splineDesign()} for derivatives
 ##' of B-splines.  The implementation is based on the close form recursion
-##' formula.  At knots, the derivative is defined to be the right derivative.
+##' formula.  At knots, the derivative is defined to be the right derivative
+##' except at the right boundary knot.
 ##'
 ##' @inheritParams bSpline
 ##'
-##' @param derivs A positive integer specifying the order of derivative.  By
-##'     default, it is \code{1L} for the first derivative.
+##' @param derivs A positive integer specifying the order of derivative.  The
+##'     default value is \code{1L} for the first derivative.
 ##'
 ##' @inherit bSpline return
 ##'
@@ -47,17 +48,17 @@ dbs <- function(x, derivs = 1L, df = NULL, knots = NULL, degree = 3L,
 {
     ## check inputs
     if ((derivs <- as.integer(derivs)) <= 0) {
-        stop("'derivs' must be a positive integer.")
+        stop("The 'derivs' must be a positive integer.")
     }
     if ((degree <- as.integer(degree)) < 0) {
-        stop("'degree' must be a nonnegative integer.")
+        stop("The 'degree' must be a nonnegative integer.")
     }
     if (is.null(df)) {
         df <- 0L
     } else {
         df <- as.integer(df)
         if (df < 0) {
-            stop("'df' must be a nonnegative integer.")
+            stop("The 'df' must be a nonnegative integer.")
         }
     }
     knots <- null2num0(knots)
@@ -65,7 +66,7 @@ dbs <- function(x, derivs = 1L, df = NULL, knots = NULL, degree = 3L,
     ## take care of possible NA's in `x`
     nax <- is.na(x)
     if (all(nax)) {
-        stop("'x' cannot be all NA's!")
+        stop("The 'x' cannot be all NA's!")
     }
     nas <- any(nax)
     ## remove NA's

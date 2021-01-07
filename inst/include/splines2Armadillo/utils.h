@@ -1,6 +1,6 @@
 //
 // R package splines2 by Wenjie Wang and Jun Yan
-// Copyright (C) 2016-2020
+// Copyright (C) 2016-2021
 //
 // This file is part of the R package splines2.
 //
@@ -32,6 +32,23 @@
 #include <RcppArmadillo.h>
 
 namespace splines2 {
+
+    // compare double-precision numbers for almost equality
+    inline bool isAlmostEqual(double A, double B = 0.0)
+    {
+        double MaxRelDiff {std::numeric_limits<double>::epsilon()};
+        // compute the difference.
+        double diff = std::abs(A - B);
+        A = std::abs(A);
+        B = std::abs(B);
+        // Find the largest
+        double largest = (B > A) ? B : A;
+        if (diff <= largest * MaxRelDiff) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     // cumulative sum in possibly reverse order>
     template <typename T>

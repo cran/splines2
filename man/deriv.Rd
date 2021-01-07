@@ -9,6 +9,7 @@
 \alias{deriv.iSpline}
 \alias{deriv.cSpline}
 \alias{deriv.bernsteinPoly}
+\alias{deriv.naturalSpline}
 \title{Derivatives of Spline Bases}
 \usage{
 \method{deriv}{bSpline2}(expr, derivs = 1L, ...)
@@ -24,33 +25,37 @@
 \method{deriv}{cSpline}(expr, derivs = 1L, ...)
 
 \method{deriv}{bernsteinPoly}(expr, derivs = 1L, ...)
+
+\method{deriv}{naturalSpline}(expr, derivs = 1L, ...)
 }
 \arguments{
-\item{expr}{Objects of class \code{bSpline2}, \code{ibs}, \code{dbs},
-\code{mSpline}, \code{iSpline}, or \code{cSpline}, etc.}
+\item{expr}{Objects of class \code{bSpline2}, \code{ibs}, \code{mSpline},
+\code{iSpline}, \code{cSpline}, \code{bernsteinPoly} or
+\code{naturalSpline} with attributes describing \code{knots},
+\code{degree}, etc.}
 
 \item{derivs}{A positive integer specifying the order of derivatives. By
-default, it is \code{1L} for the first derivative.}
+default, it is \code{1L} for the first derivatives.}
 
-\item{...}{Other arguments that are not used.}
+\item{...}{Optional argument that are not used.}
 }
 \value{
 A numeric matrix of the same dimension with the input \code{expr}.
 }
 \description{
-Returns derivatives of given order for the spline bases.
+Returns derivatives of given order for the given spline bases.
 }
 \details{
-At knots, the derivative is defined to be the right derivative. By default,
-the function returns the first derivatives.  For derivatives of order
-greater than one, the nested call such as \code{deriv(deriv(expr))} is
-supported but not recommended.  For a better performance, argument
-\code{derivs} should be specified instead.
+At knots, the derivative is defined to be the right derivative except at the
+right boundary knot. By default, the function returns the first derivatives.
+For derivatives of order greater than one, nested function calls such as
+\code{deriv(deriv(expr))} are supported but not recommended.  For a better
+performance, argument \code{derivs} should be specified instead.
 
 This function is designed for objects produced by this package.  It
 internally extracts necessary specification about the spline/polynomial
 basis matrix from its attributes. Therefore, the function will not work if
-the key attributions are not available after some operations.
+the key attributes are not available after some operations.
 }
 \examples{
 library(splines2)

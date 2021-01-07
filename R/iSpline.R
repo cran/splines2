@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2020
+## Copyright (C) 2016-2021
 ##
 ## This file is part of the R package splines2.
 ##
@@ -40,7 +40,7 @@
 ##'
 ##' @references
 ##' Ramsay, J. O. (1988). Monotone regression splines in action.
-##' \emph{Statistical science}, 3(4), 425--441.
+##' \emph{Statistical Science}, 3(4), 425--441.
 ##'
 ##' @example inst/examples/ex-iSpline.R
 ##'
@@ -55,7 +55,7 @@ iSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
 {
     ## check inputs
     if ((derivs <- as.integer(derivs)) < 0) {
-        stop("'derivs' must be a non-negative integer.")
+        stop("The 'derivs' must be a non-negative integer.")
     }
     if (derivs > 0) {
         return(mSpline(x = x,
@@ -68,13 +68,13 @@ iSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
     }
     ## else I-Spline basis
     if ((degree <- as.integer(degree)) < 0)
-        stop("'degree' must be a nonnegative integer.")
+        stop("The 'degree' must be a nonnegative integer.")
     if (is.null(df)) {
         df <- 0L
     } else {
         df <- as.integer(df)
         if (df < 0) {
-            stop("'df' must be a nonnegative integer.")
+            stop("The 'df' must be a nonnegative integer.")
         }
     }
     knots <- null2num0(knots)
@@ -91,12 +91,14 @@ iSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
               x
           }
     ## call the engine function
-    out <- rcpp_iSpline_basis(
+    out <- rcpp_iSpline(
         x = xx,
         df = df,
         degree = degree,
         internal_knots = knots,
         boundary_knots = Boundary.knots,
+        derivs = derivs,
+        integral = FALSE,
         complete_basis = intercept
     )
     ## throw warning if any x is outside of the boundary

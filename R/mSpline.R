@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2020
+## Copyright (C) 2016-2021
 ##
 ## This file is part of the R package splines2.
 ##
@@ -17,19 +17,55 @@
 
 ##' M-Spline Basis for Polynomial Splines
 ##'
-##' Generates the basis matrix of the regression spline called M-spline or the
-##' corresponding derivatives of given order.  For monotone regression,
-##' \code{\link{iSpline}} should be used instead of M-splines.
+##' Generates the basis matrix of regular M-spline, periodic M-spline, and the
+##' corresponding integrals and derivatives.
 ##'
-##' It is an implementation of the close form M-spline basis based on the
-##' recursion formula given by Ramsay (1988).
+##' This function contains an implementation of the close form M-spline basis
+##' based on the recursion formula given by Ramsay (1988).  For monotone
+##' regression, one can use I-splines (see \code{\link{iSpline}}) instead of
+##' M-splines.
 ##'
 ##' @inheritParams bSpline
 ##'
+##' @param df Degree of freedom that equals to the column number of the returned
+##'     matrix.  One can specify \code{df} rather than \code{knots}.  For
+##'     M-splines, the function chooses \code{df - degree -
+##'     as.integer(intercept)} internal knots at suitable quantiles of \code{x}
+##'     ignoring missing values and those \code{x} outside of the boundary.  For
+##'     periodic spline based on M-spline (\code{periodic = TRUE}), \code{df -
+##'     as.integer(intercept)} internal knots will be chosen instead and the
+##'     number of internal knots must be greater or equal to the specified
+##'     \code{degree}.  If internal knots are specified via \code{knots}, the
+##'     specified \code{df} will be ignored.
+##' @param knots The internal breakpoints that define the splines.  The default
+##'     is \code{NULL}, which results in a basis for ordinary polynomial
+##'     regression.  Typical values are the mean or median for one knot,
+##'     quantiles for more knots.  For periodic splines (\code{periodic =
+##'     TRUE}), the number of knots must be greater or equal to the specified
+##'     \code{degree}.
+##' @param Boundary.knots Boundary points at which to anchor the splines.  By
+##'     default, they are the range of \code{x} excluding \code{NA}.  If both
+##'     \code{knots} and \code{Boundary.knots} are supplied, the basis
+##'     parameters do not depend on \code{x}. Data can extend beyond
+##'     \code{Boundary.knots}.  For periodic splines (\code{periodic = TRUE}),
+##'     the specified \code{Boundary.knots} define the cyclic period.
+##' @param periodic A logical value.  If \code{TRUE}, the periodic splines will
+##'     be returned instead of regular M-splines.  The default value is
+##'     \code{FALSE}.
 ##' @param derivs A non-negative integer specifying the order of derivatives of
 ##'     M-splines. The default value is \code{0L} for M-spline bases.
+##' @param integral A logical value.  If \code{TRUE}, the corresponding
+##'     integrals of spline bases will be returned.  The default value is
+##'     \code{FALSE}.  For periodic spline, the integral of each basis is
+##'     integrated from the left boundary knot.
 ##'
-##' @inherit bSpline return
+##' @return A numeric matrix of \code{length(x)} rows and \code{df} columns if
+##'     \code{df} is specified.  If \code{knots} are specified instead, the
+##'     output matrix will consist of \code{length(knots) + degree +
+##'     as.integer(intercept)} columns if \code{periodic = FALSE}, or
+##'     \code{length(knots) + as.integer(intercept)} columns if \code{periodic =
+##'     TRUE}.  Attributes that correspond to the arguments specified are
+##'     returned for usage of other functions in this package.
 ##'
 ##' @references
 ##' Ramsay, J. O. (1988). Monotone regression splines in action.
@@ -45,20 +81,23 @@
 ##' @export
 mSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
                     intercept = FALSE, Boundary.knots = NULL,
-                    derivs = 0L, ...)
+                    periodic = FALSE, derivs = 0L, integral = FALSE,
+                    ...)
 {
     ## check inputs
     if ((derivs <- as.integer(derivs)) < 0) {
-        stop("'derivs' must be a non-negative integer.")
+        stop("The 'derivs' must be a non-negative integer.")
     }
     if ((degree <- as.integer(degree)) < 0)
-        stop("'degree' must be a nonnegative integer.")
+        stop("The 'degree' must be a nonnegative integer.")
     if (is.null(df)) {
         df <- 0L
     } else {
         df <- as.integer(df)
         if (df < 0) {
-            stop("'df' must be a nonnegative integer.")
+            stop("The 'df' must be a nonnegative integer.")
+        } else if (periodic && df < degree) {
+            stop("The 'df' must be >= 'degree' for periodic spline basis.")
         }
     }
     knots <- null2num0(knots)
@@ -74,31 +113,33 @@ mSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
           } else {
               x
           }
-    out <- if (derivs > 0) {
-               ## call the engine function
-               rcpp_mSpline_derivative(
+    ## call the engine function
+    out <- if (periodic) {
+               rcpp_periodic_mSpline(
                    x = xx,
-                   derivs = derivs,
                    df = df,
                    degree = degree,
                    internal_knots = knots,
                    boundary_knots = Boundary.knots,
+                   derivs = derivs,
+                   integral = integral,
                    complete_basis = intercept
                )
            } else {
-               ## call the engine function
-               rcpp_mSpline_basis(
+               rcpp_mSpline(
                    x = xx,
                    df = df,
                    degree = degree,
                    internal_knots = knots,
                    boundary_knots = Boundary.knots,
+                   derivs = derivs,
+                   integral = integral,
                    complete_basis = intercept
                )
            }
     ## throw warning if any x is outside of the boundary
     b_knots <- attr(out, "Boundary.knots")
-    if (any((xx < b_knots[1L]) | (xx > b_knots[2L]))) {
+    if (! periodic && any((xx < b_knots[1L]) | (xx > b_knots[2L]))) {
         warning(wrapMessages(
             "Some 'x' values beyond boundary knots",
             "may cause ill-conditioned bases."

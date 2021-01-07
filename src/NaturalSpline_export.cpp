@@ -21,27 +21,42 @@
 #include <splines2Armadillo.h>
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix rcpp_bernsteinPoly(
+Rcpp::NumericMatrix rcpp_naturalSpline(
     const arma::vec& x,
-    const unsigned int degree,
-    const unsigned int derivs,
-    const bool integral,
+    const unsigned int df,
+    const arma::vec& internal_knots,
     const arma::vec& boundary_knots,
-    const bool complete_basis
+    const unsigned int derivs = 0,
+    const bool integral = false,
+    const bool complete_basis = true
     )
 {
-    splines2::BernsteinPoly bp_obj { x, degree, boundary_knots };
+    splines2::NaturalSpline ns_obj;
+    // if df > 0 and knots are not specified
+    // auto set internal knots based on df
+    if (df > 0 && internal_knots.n_elem == 0) {
+        // compute actual spline degree of freedom
+        const unsigned int wo_intercept {
+            static_cast<unsigned int>(! complete_basis)
+        };
+        unsigned int spline_df { df + wo_intercept };
+        ns_obj = splines2::NaturalSpline(x, spline_df, boundary_knots);
+    } else {
+        // else ignore df
+        ns_obj = splines2::NaturalSpline(x, internal_knots, boundary_knots);
+    }
     Rcpp::NumericMatrix out;
+    // 1) basis, 2) derivative, or 3) integral
     if (integral && derivs == 0) {
         // integrals
-        out = splines2::arma2rmat(bp_obj.integral(complete_basis));
+        out = splines2::arma2rmat(ns_obj.integral(complete_basis));
     } else if ((! integral && derivs == 0) || (integral && derivs == 1)) {
         // bases
-        out = splines2::arma2rmat(bp_obj.basis(complete_basis));
+        out = splines2::arma2rmat(ns_obj.basis(complete_basis));
     } else {
         // derivatives
         out = splines2::arma2rmat(
-            bp_obj.derivative(derivs - static_cast<unsigned int>(integral),
+            ns_obj.derivative(derivs - static_cast<unsigned int>(integral),
                               complete_basis)
             );
     }
@@ -50,10 +65,9 @@ Rcpp::NumericMatrix rcpp_bernsteinPoly(
         R_NilValue, splines2::char_seq_len(out.ncol())
         );
     out.attr("x") = splines2::arma2rvec(x);
-    out.attr("degree") = static_cast<int>(bp_obj.get_degree());
-    out.attr("Boundary.knots") = splines2::arma2rvec(
-        bp_obj.get_boundary_knots()
-        );
+    out.attr("knots") = splines2::arma2rvec(ns_obj.get_internal_knots());
+    out.attr("Boundary.knots") =
+        splines2::arma2rvec(ns_obj.get_boundary_knots());
     out.attr("derivs") = static_cast<int>(derivs);
     out.attr("integral") = integral;
     out.attr("intercept") = complete_basis;

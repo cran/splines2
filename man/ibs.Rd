@@ -2,7 +2,7 @@
 % Please edit documentation in R/ibs.R
 \name{ibs}
 \alias{ibs}
-\title{Integrals of B-Spline Basis}
+\title{Integrals of B-Splines}
 \usage{
 ibs(
   x,
@@ -18,27 +18,27 @@ ibs(
 \item{x}{The predictor variable.  Missing values are allowed and will be
 returned as they are.}
 
-\item{df}{Degree of freedom that equals to the column number of returned
+\item{df}{Degree of freedom that equals to the column number of the returned
 matrix.  One can specify \code{df} rather than \code{knots}, then the
 function chooses \code{df - degree - as.integer(intercept)} internal
 knots at suitable quantiles of \code{x} ignoring missing values and
 those \code{x} outside of the boundary.  If internal knots are specified
 via \code{knots}, the specified \code{df} will be ignored.}
 
-\item{knots}{The internal breakpoints that define the spline.  The default
+\item{knots}{The internal breakpoints that define the splines.  The default
 is \code{NULL}, which results in a basis for ordinary polynomial
 regression.  Typical values are the mean or median for one knot,
 quantiles for more knots.}
 
-\item{degree}{A non-negative integer specifying the degree of the piecewise
-polynomial. The default value is 3 for cubic splines. Zero degree is
-allowed for piece-wise constant bases.}
+\item{degree}{A nonnegative integer specifying the degree of the piecewise
+polynomial. The default value is \code{3} for cubic splines. Zero degree
+is allowed for piecewise constant bases.}
 
 \item{intercept}{If \code{TRUE}, the complete basis matrix will be returned.
 Otherwise, the first basis will be excluded from the output.}
 
-\item{Boundary.knots}{Boundary points at which to anchor the spline basis.
-By default, they are the range of the non-\code{NA} data.  If both
+\item{Boundary.knots}{Boundary points at which to anchor the splines.  By
+default, they are the range of \code{x} excluding \code{NA}.  If both
 \code{knots} and \code{Boundary.knots} are supplied, the basis
 parameters do not depend on \code{x}. Data can extend beyond
 \code{Boundary.knots}.}
@@ -46,14 +46,14 @@ parameters do not depend on \code{x}. Data can extend beyond
 \item{...}{Optional arguments that are not used.}
 }
 \value{
-A numeric matrix with \code{length(x)} rows and \code{df} columns if
+A numeric matrix of \code{length(x)} rows and \code{df} columns if
     \code{df} is specified or \code{length(knots) + degree +
     as.integer(intercept)} columns if \code{knots} are specified instead.
-    Attributes that correspond to the arguments specified are returned for
-    usage of other functions in this package.
+    Attributes that correspond to the arguments specified are returned
+    mainly for other functions in this package.
 }
 \description{
-Generates the integrals of B-spline basis matrix.
+Generates basis matrix for integrals of B-splines.
 }
 \details{
 The implementation is based on the close form recursion formula.
@@ -73,13 +73,14 @@ bsMat <- deriv(ibsMat)
 stopifnot(all.equal(bsMat0, bsMat, check.attributes = FALSE))
 
 ## plot B-spline basis with their corresponding integrals
-library(graphics)
-par(mfrow = c(1, 2))
+op <- par(mfrow = c(1, 2))
 matplot(x, bsMat, type = "l", ylab = "B-spline basis")
 abline(v = knots, lty = 2, col = "gray")
 matplot(x, ibsMat, type = "l", ylab = "Integral of B-spline basis")
 abline(v = knots, lty = 2, col = "gray")
-par(mfrow = c(1, 1))
+
+## reset to previous plotting settings
+par(op)
 }
 \references{
 De Boor, Carl. (1978). \emph{A practical guide to splines}.

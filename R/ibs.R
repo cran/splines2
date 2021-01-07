@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2020
+## Copyright (C) 2016-2021
 ##
 ## This file is part of the R package splines2.
 ##
@@ -15,9 +15,9 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ##
 
-##' Integrals of B-Spline Basis
+##' Integrals of B-Splines
 ##'
-##' Generates the integrals of B-spline basis matrix.
+##' Generates basis matrix for integrals of B-splines.
 ##'
 ##' The implementation is based on the close form recursion formula.
 ##'
@@ -41,13 +41,13 @@ ibs <- function(x, df = NULL, knots = NULL, degree = 3,
 {
     ## check inputs
     if ((degree <- as.integer(degree)) < 0)
-        stop("'degree' must be a nonnegative integer.")
+        stop("The 'degree' must be a nonnegative integer.")
     if (is.null(df)) {
         df <- 0L
     } else {
         df <- as.integer(df)
         if (df < 0) {
-            stop("'df' must be a nonnegative integer.")
+            stop("The 'df' must be a nonnegative integer.")
         }
     }
     knots <- null2num0(knots)

@@ -1,6 +1,6 @@
 //
 // R package splines2 by Wenjie Wang and Jun Yan
-// Copyright (C) 2016-2020
+// Copyright (C) 2016-2021
 //
 // This file is part of the R package splines2.
 //
@@ -23,5 +23,7 @@
 #include "splines2Armadillo/ISpline.h"
 #include "splines2Armadillo/CSpline.h"
 #include "splines2Armadillo/BernsteinPoly.h"
+#include "splines2Armadillo/NaturalSpline.h"
+#include "splines2Armadillo/PeriodicMSpline.h"
 
 #endif

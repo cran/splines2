@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2020
+## Copyright (C) 2016-2021
 ##
 ## This file is part of the R package splines2.
 ##
@@ -23,6 +23,8 @@
 ##' \item M-splines
 ##' \item I-splines
 ##' \item convex splines (C-splines)
+##' \item periodic M-splines
+##' \item natural cubic splines
 ##' \item generalized Bernstein polynomials
 ##' \item their integrals (except C-splines) and derivatives of given order by
 ##' close-form recursive formulas

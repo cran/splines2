@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2020
+## Copyright (C) 2016-2021
 ##
 ## This file is part of the R package splines2.
 ##
@@ -17,26 +17,28 @@
 
 ##' Derivatives of Spline Bases
 ##'
-##' Returns derivatives of given order for the spline bases.
+##' Returns derivatives of given order for the given spline bases.
 ##'
-##' At knots, the derivative is defined to be the right derivative. By default,
-##' the function returns the first derivatives.  For derivatives of order
-##' greater than one, the nested call such as \code{deriv(deriv(expr))} is
-##' supported but not recommended.  For a better performance, argument
-##' \code{derivs} should be specified instead.
+##' At knots, the derivative is defined to be the right derivative except at the
+##' right boundary knot. By default, the function returns the first derivatives.
+##' For derivatives of order greater than one, nested function calls such as
+##' \code{deriv(deriv(expr))} are supported but not recommended.  For a better
+##' performance, argument \code{derivs} should be specified instead.
 ##'
 ##' This function is designed for objects produced by this package.  It
 ##' internally extracts necessary specification about the spline/polynomial
 ##' basis matrix from its attributes. Therefore, the function will not work if
-##' the key attributions are not available after some operations.
+##' the key attributes are not available after some operations.
 ##'
 ##' @name deriv
 ##'
-##' @param expr Objects of class \code{bSpline2}, \code{ibs}, \code{dbs},
-##'     \code{mSpline}, \code{iSpline}, or \code{cSpline}, etc.
+##' @param expr Objects of class \code{bSpline2}, \code{ibs}, \code{mSpline},
+##'     \code{iSpline}, \code{cSpline}, \code{bernsteinPoly} or
+##'     \code{naturalSpline} with attributes describing \code{knots},
+##'     \code{degree}, etc.
 ##' @param derivs A positive integer specifying the order of derivatives. By
-##'     default, it is \code{1L} for the first derivative.
-##' @param ... Other arguments that are not used.
+##'     default, it is \code{1L} for the first derivatives.
+##' @param ... Optional argument that are not used.
 ##'
 ##' @return A numeric matrix of the same dimension with the input \code{expr}.
 ##'
@@ -51,11 +53,9 @@ NULL
 deriv.bSpline2 <- function(expr, derivs = 1L, ...)
 {
     attr(expr, "derivs") <- derivs
-    ## checks if key attributions still exist
-    check_attr(expr, check_derivs = FALSE)
-    dMat <- do.call(dbs, attributes(expr))
-    class(dMat) <- c("matrix", "dbs")
-    dMat
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "degree", "knots", "Boundary.knots", "intercept"))
+    do.call(dbs, attributes(expr))
 }
 
 
@@ -64,11 +64,10 @@ deriv.bSpline2 <- function(expr, derivs = 1L, ...)
 deriv.dbs <- function(expr, derivs = 1L, ...)
 {
     attr(expr, "derivs") <- attr(expr, "derivs") + derivs
-    ## checks if key attributions still exist
-    check_attr(expr, check_derivs = TRUE)
-    dMat <- do.call(dbs, attributes(expr))
-    class(dMat) <- c("matrix", "dbs")
-    dMat
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "degree", "derivs",
+                       "knots", "Boundary.knots", "intercept"))
+    do.call(dbs, attributes(expr))
 }
 
 
@@ -79,22 +78,18 @@ deriv.ibs <- function(expr, derivs = 1L, ...)
     ## quick check on derivs
     derivs <- as.integer(derivs)
     if (derivs < 1L) {
-        stop("'derivs' has to be a positive integer.")
+        stop("The 'derivs' has to be a positive integer.")
     }
-    ## checks if key attributions still exist
-    check_attr(expr, check_derivs = FALSE)
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "degree", "knots", "Boundary.knots", "intercept"))
     ## if first derivative, take result from existing attribute if exists
     if (derivs == 1L) {
-        out <- attr(expr, "bsMat")
-        if (is.null(out))
-            out <- do.call(bSpline, attributes(expr))
-        return(out)
+        do.call(bSpline, attributes(expr))
+    } else {
+        ## for higher order of derivative
+        attr(expr, "derivs") <- derivs - 1L
+        do.call(dbs, attributes(expr))
     }
-    ## for higher order of derivative
-    attr(expr, "derivs") <- derivs - 1L
-    dMat <- do.call(dbs, attributes(expr))
-    class(dMat) <- c("matrix", "dbs")
-    dMat
 }
 
 
@@ -102,13 +97,11 @@ deriv.ibs <- function(expr, derivs = 1L, ...)
 ##' @export
 deriv.mSpline <- function(expr, derivs = 1L, ...)
 {
-    derivs0 <- attr(expr, "derivs")
-    ## checks if key attributions still exist
-    check_attr(expr, check_derivs = FALSE)
-    attr(expr, "derivs") <- ifelse(is.null(derivs0), derivs, derivs0 + derivs)
-    dMat <- do.call(mSpline, attributes(expr))
-    class(dMat) <- c("matrix", "mSpline")
-    dMat
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "degree", "derivs", "integral", "periodic",
+                       "knots", "Boundary.knots", "intercept"))
+    attr(expr, "derivs") <- attr(expr, "derivs") + derivs
+    do.call(mSpline, attributes(expr))
 }
 
 
@@ -116,12 +109,16 @@ deriv.mSpline <- function(expr, derivs = 1L, ...)
 ##' @export
 deriv.iSpline <- function(expr, derivs = 1L, ...)
 {
-    ## checks if key attributions still exist
-    check_attr(expr, check_derivs = FALSE)
+    ## quick check on derivs
+    derivs <- as.integer(derivs)
+    if (derivs < 1L) {
+        stop("The 'derivs' has to be a positive integer.")
+    }
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "degree", "derivs",
+                       "knots", "Boundary.knots", "intercept"))
     attr(expr, "derivs") <- derivs - 1L
-    dMat <- do.call(mSpline, attributes(expr))
-    class(dMat) <- c("matrix", "mSpline")
-    dMat
+    do.call(mSpline, attributes(expr))
 }
 
 
@@ -129,10 +126,16 @@ deriv.iSpline <- function(expr, derivs = 1L, ...)
 ##' @export
 deriv.cSpline <- function(expr, derivs = 1L, ...)
 {
-    ## checks if key attributions still exist
-    check_attr(expr, check_derivs = FALSE)
+    ## quick check on derivs
+    derivs <- as.integer(derivs)
+    if (derivs < 1L) {
+        stop("The 'derivs' has to be a positive integer.")
+    }
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "degree", "derivs",
+                       "knots", "Boundary.knots", "intercept"))
     scl <- attr(expr, "scales")
-    ## not scaled
+    ## not scaled (then "derivs" must be 0 in cSpline call)
     if (is.null(scl)) {
         derivs <- as.integer(derivs)
         if (derivs == 1L) {
@@ -142,12 +145,12 @@ deriv.cSpline <- function(expr, derivs = 1L, ...)
             return(do.call(mSpline, attributes(expr)))
         }
         attr(expr, "derivs") <- derivs - 2L
-        return(do.call(mSpline, attributes(expr)))
+        do.call(mSpline, attributes(expr))
+    } else {
+        ## else scaled
+        attr(expr, "derivs") <- attr(expr, "derivs") + derivs
+        do.call(cSpline, attributes(expr))
     }
-    ## else scaled
-    derivs0 <- attr(expr, "derivs")
-    attr(expr, "derivs") <- ifelse(is.null(derivs0), derivs, derivs0 + derivs)
-    do.call(cSpline, attributes(expr))
 }
 
 
@@ -155,10 +158,21 @@ deriv.cSpline <- function(expr, derivs = 1L, ...)
 ##' @export
 deriv.bernsteinPoly <- function(expr, derivs = 1L, ...)
 {
-    ## checks if key attributions still exist
-    check_attr(expr,
-               attrs = c("x", "degree", "Boundary.knots",
-                         "intercept", "integral"))
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "degree", "derivs", "integral",
+                       "Boundary.knots", "intercept"))
     attr(expr, "derivs") <- attr(expr, "derivs") + derivs
     do.call(bernsteinPoly, attributes(expr))
+}
+
+
+##' @rdname deriv
+##' @export
+deriv.naturalSpline <- function(expr, derivs = 1L, ...)
+{
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "derivs", "integral",
+                       "knots", "Boundary.knots", "intercept"))
+    attr(expr, "derivs") <- attr(expr, "derivs") + derivs
+    do.call(naturalSpline, attributes(expr))
 }
