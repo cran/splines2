@@ -1,7 +1,7 @@
 Package: splines2
 Title: Regression Spline Functions and Classes
-Version: 0.4.1
-Date: 2021-01-06
+Version: 0.4.2
+Date: 2021-02-20
 Authors@R: c(
     person(given = "Wenjie", family = "Wang",
            email = "wang@wwenjie.org",
@@ -10,7 +10,7 @@ Authors@R: c(
     person(given = "Jun", family = "Yan", role = "aut",
            comment = c(ORCID = "0000-0003-4401-7296"))
     )
-Description: Constructs basis matrix of B-splines, M-splines
+Description: Constructs basis matrix of B-splines, M-splines,
     I-splines, convex splines (C-splines), periodic M-splines,
     natural cubic splines, generalized Bernstein polynomials,
     and their integrals (except C-splines) and derivatives
@@ -32,9 +32,9 @@ BugReports: https://github.com/wenjie2wang/splines2/issues
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 NeedsCompilation: yes
-Packaged: 2021-01-06 13:39:07 UTC; wenjie
+Packaged: 2021-02-21 02:50:45 UTC; wenjie
 Author: Wenjie Wang [aut, cre] (<https://orcid.org/0000-0003-0363-3180>),
   Jun Yan [aut] (<https://orcid.org/0000-0003-4401-7296>)
 Maintainer: Wenjie Wang <wang@wwenjie.org>
 Repository: CRAN
-Date/Publication: 2021-01-07 07:00:02 UTC
+Date/Publication: 2021-02-21 08:00:02 UTC

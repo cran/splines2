@@ -15,9 +15,9 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ##
 
-##' Derivatives of Spline Bases
+##' Derivatives of Spline Basis Functions
 ##'
-##' Returns derivatives of given order for the given spline bases.
+##' Returns derivatives of given order for the given spline basis functions.
 ##'
 ##' At knots, the derivative is defined to be the right derivative except at the
 ##' right boundary knot. By default, the function returns the first derivatives.
@@ -38,7 +38,7 @@
 ##'     \code{degree}, etc.
 ##' @param derivs A positive integer specifying the order of derivatives. By
 ##'     default, it is \code{1L} for the first derivatives.
-##' @param ... Optional argument that are not used.
+##' @param ... Optional arguments that are not used.
 ##'
 ##' @return A numeric matrix of the same dimension with the input \code{expr}.
 ##'

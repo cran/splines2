@@ -77,7 +77,7 @@ expect_true(isNumMatrix(msMat0f, 1, length(knots) + 2))
 expect_true(isNumMatrix(msMat0g, length(x), 6))
 
 ## true close form formula given the all knots and degree
-## transformation of constant bases
+## transformation of constant basis
 x3 <- seq.int(0, 7, 0.1)
 m0_1 <- function(x) as.numeric(x < 1)
 m0_2 <- function(x) as.numeric(x >= 1 & x < 3) * 0.5
@@ -85,7 +85,7 @@ m0_3 <- function(x) as.numeric(x >= 3 & x <= 7) * 0.25
 expect_equivalent(mSpline(x3, knots = c(1, 3), degree = 0L, intercept = TRUE),
                   cbind(m0_1(x3), m0_2(x3), m0_3(x3)))
 
-## transformation of linear bases
+## transformation of linear basis
 x4 <- seq.int(0, 3, 0.1)
 ind01 <- function(x) as.numeric(x >= 0 & x < 1)
 ind12 <- function(x) as.numeric(x >= 1 & x < 2)
@@ -169,12 +169,13 @@ expect_equal(attr(tmp, "Boundary.knots"), range(x, na.rm = TRUE))
 expect_equal(length(attr(tmp, "knots")), 8)
 
 ## intercept = TRUE
-## bases
+## basis
 res0 <- mSpline(x, df = 6, degree = 3, intercept = TRUE,
                 Boundary.knots = b_knots, periodic = TRUE)
 tmp <- mSpline(x, df = 6, degree = 3, intercept = TRUE,
                Boundary.knots = b_knots, periodic = TRUE,
                derivs = 1, integral = TRUE)
+expect_equal(res0[1, ], res0[nrow(res0) - 1, ])
 expect_true(isNumMatrix(res0, length(x), 6))
 expect_equivalent(matrix(predict(res0, 0.25), nrow = 4,
                          ncol = ncol(res0), byrow = TRUE),
@@ -185,6 +186,7 @@ expect_equivalent(res0, tmp)
 ## first derivatives
 res1 <- mSpline(x, df = 6, degree = 3, intercept = TRUE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 1)
+expect_equal(res1[1, ], res1[nrow(res1) - 1, ])
 expect_true(isNumMatrix(res1, length(x), 6))
 expect_true(all(is_in(attr(res1, "knots"), 0, 1)))
 expect_equivalent(deriv(res0), res1)
@@ -196,6 +198,7 @@ expect_equivalent(matrix(predict(res1, 0.25), nrow = 4,
 ## second derivatives
 res2 <- mSpline(x, df = 6, degree = 3, intercept = TRUE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 2)
+expect_equal(res2[1, ], res2[nrow(res2) - 1, ])
 expect_true(isNumMatrix(res2, length(x), 6))
 expect_true(all(is_in(attr(res2, "knots"), 0, 1)))
 expect_equivalent(deriv(res1), res2)
@@ -208,6 +211,7 @@ expect_equivalent(matrix(predict(res2, 0.25), nrow = 4,
 ## third derivatives
 res3 <- mSpline(x, df = 6, degree = 3, intercept = TRUE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 3)
+expect_equal(res3[1, ], res3[nrow(res3) - 1, ])
 expect_true(isNumMatrix(res3, length(x), 6))
 expect_true(all(is_in(attr(res3, "knots"), 0, 1)))
 expect_equivalent(deriv(res2), res3)
@@ -221,6 +225,7 @@ expect_equivalent(matrix(predict(res3, 0.25), nrow = 4,
 ## fourth derivatives
 res4 <- mSpline(x, df = 6, degree = 3, intercept = TRUE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 4)
+expect_equal(res4[1, ], res4[nrow(res4) - 1, ])
 expect_true(isNumMatrix(res4, length(x), 6))
 expect_equivalent(res4[1, , drop = FALSE],
                   matrix(0, ncol = ncol(res4), nrow = 1))
@@ -240,12 +245,13 @@ expect_equivalent(matrix(predict(res3, 0.25), byrow = TRUE,
                   predict(res3, 0.25 + 1:4))
 
 ## intercept = FALSE
-## bases
+## basis
 res0 <- mSpline(x, df = 6, degree = 3, intercept = FALSE,
                 Boundary.knots = b_knots, periodic = TRUE)
 tmp <- mSpline(x, df = 6, degree = 3, intercept = FALSE,
                Boundary.knots = b_knots, periodic = TRUE,
                derivs = 1, integral = TRUE)
+expect_equal(res0[1, ], res0[nrow(res0) - 1, ])
 expect_equivalent(matrix(predict(res0, 0.25), nrow = 4,
                          ncol = ncol(res0), byrow = TRUE),
                   predict(res0, 0.25 + 1:4))
@@ -255,6 +261,7 @@ expect_true(all(is_in(attr(res0, "knots"), 0, 1)))
 ## first derivatives
 res1 <- mSpline(x, df = 6, degree = 3, intercept = FALSE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 1)
+expect_equal(res1[1, ], res1[nrow(res1) - 1, ])
 expect_true(isNumMatrix(res1, length(x), 6))
 expect_true(all(is_in(attr(res1, "knots"), 0, 1)))
 expect_equivalent(deriv(res0), res1)
@@ -265,6 +272,7 @@ expect_equivalent(matrix(predict(res1, 0.25), nrow = 4,
 ## second derivatives
 res2 <- mSpline(x, df = 6, degree = 3, intercept = FALSE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 2)
+expect_equal(res2[1, ], res2[nrow(res2) - 1, ])
 expect_true(isNumMatrix(res2, length(x), 6))
 expect_true(all(is_in(attr(res2, "knots"), 0, 1)))
 expect_equivalent(deriv(res1), res2)
@@ -277,6 +285,7 @@ expect_equivalent(matrix(predict(res2, 0.25), nrow = 4,
 ## third derivatives
 res3 <- mSpline(x, df = 6, degree = 3, intercept = FALSE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 3)
+expect_equal(res3[1, ], res3[nrow(res3) - 1, ])
 expect_true(isNumMatrix(res3, length(x), 6))
 expect_true(all(is_in(attr(res3, "knots"), 0, 1)))
 expect_equivalent(deriv(res2), res3)
@@ -290,6 +299,7 @@ expect_equivalent(matrix(predict(res3, 0.25), nrow = 4,
 ## fourth derivatives
 res4 <- mSpline(x, df = 6, degree = 3, intercept = FALSE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 4)
+expect_equal(res4[1, ], res4[nrow(res4) - 1, ])
 expect_true(isNumMatrix(res4, length(x), 6))
 expect_equivalent(res4[1, , drop = FALSE],
                   matrix(0, ncol = ncol(res4), nrow = 1))
@@ -314,12 +324,13 @@ knots <- c(0.3, 0.6, 0.8)
 b_knots <- c(0, 1)
 
 ## intercept = TRUE
-## bases
+## basis
 res0 <- mSpline(x, knots = knots, degree = 3, intercept = TRUE,
                 Boundary.knots = b_knots, periodic = TRUE)
 tmp <- mSpline(x, knots = knots, degree = 3, intercept = TRUE,
                Boundary.knots = b_knots, periodic = TRUE,
                derivs = 1, integral = TRUE)
+expect_equal(res0[1, ], res0[nrow(res0) - 1, ])
 expect_equivalent(res0, tmp)
 expect_true(isNumMatrix(res0, length(x), length(knots) + 1L))
 expect_equivalent(matrix(predict(res0, 0.25), nrow = 4,
@@ -329,6 +340,7 @@ expect_equivalent(matrix(predict(res0, 0.25), nrow = 4,
 ## first derivatives
 res1 <- mSpline(x, knots = knots, degree = 3, intercept = TRUE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 1)
+expect_equal(res1[1, ], res1[nrow(res1) - 1, ])
 expect_true(isNumMatrix(res1, length(x), length(knots) + 1L))
 expect_equivalent(deriv(res0), res1)
 expect_equivalent(deriv(tmp), res1)
@@ -339,6 +351,7 @@ expect_equivalent(matrix(predict(res1, 0.25), nrow = 4,
 ## second derivatives
 res2 <- mSpline(x, knots = knots, degree = 3, intercept = TRUE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 2)
+expect_equal(res2[1, ], res2[nrow(res2) - 1, ])
 expect_true(isNumMatrix(res2, length(x), length(knots) + 1L))
 expect_equivalent(deriv(res1), res2)
 expect_equivalent(deriv(res0, 2), res2)
@@ -362,7 +375,7 @@ expect_equivalent(matrix(predict(res3, 0.25), byrow = TRUE,
 
 ## intercept = FALSE
 knots <- c(0.2, 0.5, 0.6, 0.75)
-## bases
+## basis
 res0 <- mSpline(x, knots = knots, degree = 3, intercept = FALSE,
                 Boundary.knots = b_knots, periodic = TRUE)
 tmp <- mSpline(x, knots = knots, degree = 3, intercept = FALSE,
@@ -377,6 +390,7 @@ expect_equivalent(matrix(predict(res0, 0.25), nrow = 4,
 ## first derivatives
 res1 <- mSpline(x, knots = knots, degree = 3, intercept = FALSE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 1)
+expect_equal(res1[1, ], res1[nrow(res1) - 1, ])
 expect_true(isNumMatrix(res1, length(x), length(knots)))
 expect_equivalent(deriv(res0), res1)
 expect_equivalent(deriv(tmp), res1)
@@ -387,6 +401,7 @@ expect_equivalent(matrix(predict(res1, 0.25), nrow = 4,
 ## second derivatives
 res2 <- mSpline(x, knots = knots, degree = 3, intercept = FALSE,
                 Boundary.knots = b_knots, periodic = TRUE, derivs = 2)
+expect_equal(res2[1, ], res2[nrow(res2) - 1, ])
 expect_true(isNumMatrix(res2, length(x), length(knots)))
 expect_equivalent(deriv(res1), res2)
 expect_equivalent(deriv(res0, 2), res2)

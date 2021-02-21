@@ -12,7 +12,7 @@
 
 <meta name="author" content="Wenjie Wang" />
 
-<meta name="date" content="2021-01-06" />
+<meta name="date" content="2021-02-20" />
 
 <title>Using splines2 with Rcpp</title>
 
@@ -33,6 +33,7 @@
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
@@ -155,11 +156,11 @@ div.csl-indent {
 
 <h1 class="title toc-ignore">Using splines2 with Rcpp</h1>
 <h4 class="author">Wenjie Wang</h4>
-<h4 class="date">2021-01-06</h4>
+<h4 class="date">2021-02-20</h4>
 
 
 
-<p>In this package vignette, we introduce how to use the C++ header-only library that <strong>splines2</strong> contains with the <strong>Rcpp</strong> package <span class="citation">(Eddelbuettel 2013)</span> for constructing spline basis. The introduction is intended for package developers who would like to use <strong>splines2</strong> package at C++ level.</p>
+<p>In this package vignette, we introduce how to use the C++ header-only library that <strong>splines2</strong> contains with the <strong>Rcpp</strong> package <span class="citation">(Eddelbuettel 2013)</span> for constructing spline basis functions. The introduction is intended for package developers who would like to use <strong>splines2</strong> package at C++ level.</p>
 <div id="header-file-and-name-space" class="section level2">
 <h2>Header File and Name Space</h2>
 <p>Different with the procedure based functions at R level, <strong>splines2</strong> provides several spline classes in its C++ interface for ease of usage and maintenance. The implementations use the <strong>Armadillo</strong> <span class="citation">(Sanderson 2016)</span> library with help of <strong>RcppArmadillo</strong> <span class="citation">(Eddelbuettel and Sanderson 2014)</span> and require C++11. We may include the header file named <code>splines2Armadillo.h</code> to get the access to all the classes and implementations in the name space <code>splines2</code>.</p>
@@ -175,7 +176,7 @@ div.csl-indent {
 </div>
 <div id="b-splines" class="section level2">
 <h2>B-splines</h2>
-<p>The <code>BSpline</code> class is for creating B-spline basis.</p>
+<p>The <code>BSpline</code> class is for creating B-spline basis functions.</p>
 <div id="constructors" class="section level3">
 <h3>Constructors</h3>
 <p>There are four constructors in addition to the default constructor: <code>BSpline()</code>.</p>
@@ -185,13 +186,13 @@ div.csl-indent {
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> vec&amp; internal_knots,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> degree = <span class="dv">3</span>,</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> vec&amp; boundary_knots = vec())</span></code></pre></div>
-<p>The second non-default constructor is called when an unsigned integer representing the degree of freedom of the <em>complete spline basis</em> (different with <code>df</code> in the R interface) is specified. Then the number of internal knots is computed as <code>spline_df - degree - 1</code> and the placement of internal knots uses quantiles of specified <code>x</code>.</p>
+<p>The second non-default constructor is called when an unsigned integer representing the degree of freedom of the <em>complete spline basis functions</em> (different with <code>df</code> in the R interface) is specified. Then the number of internal knots is computed as <code>spline_df - degree - 1</code> and the placement of internal knots uses quantiles of specified <code>x</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. specified spline degree of freedom (df)</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>BSpline(<span class="at">const</span> vec&amp; x,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> spline_df,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> degree = <span class="dv">3</span>,</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> vec&amp; boundary_knots = vec())</span></code></pre></div>
-<p>The third non-default constructor is intended for bases with an extended knot sequence. The multiplicities of knots in the sequence can be different but should not be greater than <code>degree + 1</code>.</p>
+<p>The third non-default constructor is intended for basis functions with an extended knot sequence. The multiplicities of knots in the sequence can be different but should not be greater than <code>degree + 1</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. specified degree and (extended) knot sequence</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>BSpline(<span class="at">const</span> rvec&amp; x,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> degree,</span>
@@ -205,8 +206,8 @@ div.csl-indent {
 <p>The main methods are</p>
 <ul>
 <li><code>basis()</code> for spline basis matrix</li>
-<li><code>derivative()</code> for derivatives of spline bases</li>
-<li><code>integral()</code> for integrals of spline bases</li>
+<li><code>derivative()</code> for derivatives of spline basis</li>
+<li><code>integral()</code> for integrals of spline basis</li>
 </ul>
 <p>The specific function signatures are as follows:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mat basis(<span class="at">const</span> <span class="dt">bool</span> complete_basis = <span class="kw">true</span>)</span>
@@ -257,8 +258,8 @@ div.csl-indent {
 <p>Same with <code>BSpline</code>, the main methods are</p>
 <ul>
 <li><code>basis()</code> for basis matrix</li>
-<li><code>derivative()</code> for derivatives of bases</li>
-<li><code>integral()</code> for integrals of bases</li>
+<li><code>derivative()</code> for derivatives of basis functions</li>
+<li><code>integral()</code> for integrals of basis functions</li>
 </ul>
 <p>The specific function signatures are as follows:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mat basis(<span class="at">const</span> <span class="dt">bool</span> complete_basis = <span class="kw">true</span>)</span>
@@ -285,13 +286,13 @@ div.csl-indent {
 <h2 class="unnumbered">Reference</h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-eddelbuettel2013springer" class="csl-entry">
-Eddelbuettel, Dirk. 2013. <em>Seamless <span>R</span> and <span>C++</span> Integration with <span>Rcpp</span></em>. Springer.
+<p>Eddelbuettel, Dirk. 2013. <em>Seamless <span>R</span> and <span>C++</span> Integration with <span>Rcpp</span></em>. Springer.</p>
 </div>
 <div id="ref-eddelbuettel2014csda" class="csl-entry">
-Eddelbuettel, Dirk, and Conrad Sanderson. 2014. <span>“<span>RcppArmadillo</span>: <span>A</span>ccelerating <span>R</span> with High-Performance <span>C++</span> Linear Algebra.”</span> <em>Computational Statistics and Data Analysis</em> 71: 1054–63. <a href="http://dx.doi.org/10.1016/j.csda.2013.02.005">http://dx.doi.org/10.1016/j.csda.2013.02.005</a>.
+<p>Eddelbuettel, Dirk, and Conrad Sanderson. 2014. <span>“<span>RcppArmadillo</span>: <span>A</span>ccelerating <span>R</span> with High-Performance <span>C++</span> Linear Algebra.”</span> <em>Computational Statistics and Data Analysis</em> 71: 1054–63. <a href="http://dx.doi.org/10.1016/j.csda.2013.02.005">http://dx.doi.org/10.1016/j.csda.2013.02.005</a>.</p>
 </div>
 <div id="ref-sanderson2016armadillo" class="csl-entry">
-Sanderson, Conrad. 2016. <span>“<span>Armadillo</span>: <span>A</span>n Open Source <span>C++</span> Linear Algebra Library for Fast Prototyping and Computationally Intensive Experiments.”</span> <em>Journal of Open Source Software</em> 1: 26.
+<p>Sanderson, Conrad. 2016. <span>“<span>Armadillo</span>: <span>A</span>n Open Source <span>C++</span> Linear Algebra Library for Fast Prototyping and Computationally Intensive Experiments.”</span> <em>Journal of Open Source Software</em> 1: 26.</p>
 </div>
 </div>
 </div>

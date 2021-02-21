@@ -6,7 +6,7 @@ knitr::opts_chunk$set(fig.width = 7, fig.height = 4)
 library(graphics)
 par(mar = c(2.5, 2.5, 0.2, 0.1), mgp = c(1.5, 0.5, 0))
 
-## ----bSpline, fig.cap="B-spline bases of degree one with two internal knots."----
+## ----bSpline, fig.cap="B-splines of degree one with two internal knots."------
 library(splines2)
 knots <- c(0.3, 0.5, 0.6)
 x <- seq(0, 1, 0.01)
@@ -14,7 +14,7 @@ bsMat <- bSpline(x, knots = knots, degree = 1, intercept = TRUE)
 matplot(x, bsMat, type = "l", ylab = "y")
 abline(v = knots, lty = 2, col = "gray")
 
-## ----ibs, fig.cap="Piecewise linear B-spline bases (left) and their integrals (right)."----
+## ----ibs, fig.cap="Piecewise linear B-splines (left) and their integrals (right)."----
 ibsMat <- ibs(x, knots = knots, degree = 1, intercept = TRUE)
 par(mfrow = c(1, 2))
 matplot(x, bsMat, type = "l", ylab = "y")
@@ -22,7 +22,7 @@ abline(v = knots, h = 1, lty = 2, col = "gray")
 matplot(x, ibsMat, type = "l", ylab = "y")
 abline(v = knots, h = c(0.15, 0.2, 0.25), lty = 2, col = "gray")
 
-## ----dbs, fig.cap="Cubic B-spline bases (left) and their first derivative (right)."----
+## ----dbs, fig.cap="Cubic B-spline (left) and their first derivative (right)."----
 bsMat <- bSpline(x, knots = knots, intercept = TRUE)
 dbsMat <- dbs(x, knots = knots, intercept = TRUE)
 par(mfrow = c(1, 2))
@@ -40,7 +40,7 @@ stopifnot(is_equivalent(dbsMat, deriv(bsMat)))
 ## ----reset-par-mSpline, echo = FALSE------------------------------------------
 par(mfrow = c(1, 1))
 
-## ----mSpline, fig.cap = "Quadratic M-spline bases with three internal knots."----
+## ----mSpline, fig.cap = "Quadratic M-spline with three internal knots."-------
 msMat <- mSpline(x, knots = knots, degree = 2, intercept = TRUE)
 matplot(x, msMat, type = "l", ylab = "y")
 abline(v = knots, lty = 2, col = "gray")
@@ -50,19 +50,19 @@ dmsMat1 <- mSpline(x, knots = knots, degree = 2, intercept = TRUE, derivs = 1)
 dmsMat2 <- deriv(msMat)
 stopifnot(is_equivalent(dmsMat1, dmsMat2))
 
-## ----pms-basis, fig.cap = "Cubic periodic M-spline bases."--------------------
+## ----pms-basis, fig.cap = "Cubic periodic M-splines."-------------------------
 x1 <- seq.int(0, 3, 0.01)
 pmsMat <- mSpline(x1, knots = knots, degree = 3, intercept = TRUE,
                   periodic = TRUE, Boundary.knots = c(0, 1))
-matplot(x1, pmsMat, type = "l", xlab = "x", ylab = "Periodic Bases")
+matplot(x1, pmsMat, type = "l", xlab = "x", ylab = "Periodic Basis")
 abline(v = seq.int(0, 3), lty = 2, col = "gray")
 
-## ----pms-deriv, fig.cap = "The first derivatives of the periodic M-spline bases."----
+## ----pms-deriv, fig.cap = "The first derivatives of the periodic M-splines."----
 dpmsMat <- deriv(pmsMat)
 matplot(x1, dpmsMat, type = "l", xlab = "x", ylab = "The 1st derivatives")
 abline(v = seq.int(0, 3), lty = 2, col = "gray")
 
-## ----pms-integral, fig.cap = "The integrals of the periodic M-spline bases."----
+## ----pms-integral, fig.cap = "The integrals of the periodic M-splines."-------
 ipmsMat <- mSpline(x1, knots = knots, degree = 3, intercept = TRUE,
                    periodic = TRUE, Boundary.knots = c(0, 1), integral = TRUE)
 matplot(x1, ipmsMat, type = "l", xlab = "x", ylab = "Integrals")
@@ -117,15 +117,15 @@ stopifnot(is_equivalent(dbpMat2, deriv(bpMat2)))
 stopifnot(is_equivalent(dbpMat1, deriv(ibpMat1, 2)))
 stopifnot(is_equivalent(dbpMat2, deriv(ibpMat2, 2)))
 
-## ----ns-basis, fig.cap = "Nonnegative natural cubic spline bases (left) and corresponding integrals (right)."----
+## ----ns-basis, fig.cap = "Nonnegative natural cubic splines (left) and corresponding integrals (right)."----
 nsMat <- naturalSpline(x, knots = knots, intercept = TRUE)
 insMat <- naturalSpline(x, knots = knots, intercept = TRUE, integral = TRUE)
 par(mfrow = c(1, 2))
-matplot(x, nsMat, type = "l", ylab = "Bases")
+matplot(x, nsMat, type = "l", ylab = "Basis")
 matplot(x, insMat, type = "l", ylab = "Integrals")
 stopifnot(is_equivalent(nsMat, deriv(insMat)))
 
-## ----ns-deriv, fig.cap = "The derivatives of natural cubic spline bases."-----
+## ----ns-deriv, fig.cap = "The derivatives of natural cubic splines."----------
 d1nsMat <- naturalSpline(x, knots = knots, intercept = TRUE, derivs = 1)
 d2nsMat <- deriv(nsMat, 2)
 par(mfrow = c(1, 2))

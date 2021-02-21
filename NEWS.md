@@ -1,3 +1,17 @@
+# splines2 0.4.2
+
+## New features
+
+* Added `knots()` methods to extract internal knots and boundary knots from a
+  given *spline2* object.
+
+## Major changes
+
+* Updated the generation of the knot sequence for period M-splines following
+  Piegl and Tiller (1997), which relaxed the previous requirement that
+  `length(knots) >= degree` to `length(knots) >= degree - 1`.
+
+
 # splines2 0.4.1
 
 ## New features
@@ -38,11 +52,11 @@
 
 ## Minor changes
 
-* Made piece-wise constant bases continuous at right boundary knot for
-  consistency with spline bases of non-zero degrees.
+* Made piece-wise constant basis functions continuous at right boundary knot for
+  consistency with spline basis matrix of non-zero degrees.
 * Changed the default value of argument `intercept` in function `iSpline()` and
-  `cSpline()` to `TRUE` for a complete set of spline bases in shape-restricted
-  regression.
+  `cSpline()` to `TRUE` for a complete set of spline basis functions in
+  shape-restricted regression.
 * Removed the corresponding M-spline basis from attributes of outputs from
   `iSpline()` and `cSpline()`.
 * Removed the corresponding B-spline basis from attributes of outputs from
@@ -57,8 +71,8 @@
 
 ## Bug fixes
 
-* Fixed inconsistency of argument `df` for piecewise constant bases when `knots
-  = NULL`.
+* Fixed inconsistency of argument `df` for piecewise constant basis functions
+  when `knots = NULL`.
 
 ## Minor changes
 
@@ -132,7 +146,7 @@
 
 ## Bug fixes
 
-* Fixed the NA's handling in all the functions constructing spline bases.
+* Fixed the NA's handling in all the functions constructing spline basis matrix.
 
 
 # splines2 0.2.1
