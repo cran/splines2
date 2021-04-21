@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 #include "common.h"
+#include "SplineBase.h"
 #include "utils.h"
 
 namespace splines2 {
@@ -35,19 +36,19 @@ namespace splines2 {
         double range_size_ = 1; // b - a
         rvec x_;
 
-        rmat poly_basis_;
-        bool is_basis_latest_ = false;
-
         // check x
         inline void check_x(const rvec& x) {
             if (x.has_nan()) {
                 throw std::range_error("x cannot contain NA.");
             }
-            for (size_t i {0}; i < x.n_elem; ++i) {
-                if (x(i) < boundary_knots_(0) || x(i) > boundary_knots_(1)) {
-                    throw std::range_error(
-                        "The 'x' must be inside of boundary."
-                        );
+            if (boundary_knots_.n_elem == 2) {
+                for (size_t i {0}; i < x.n_elem; ++i) {
+                    if (x(i) < boundary_knots_(0) ||
+                        x(i) > boundary_knots_(1)) {
+                        throw std::range_error(
+                            "The 'x' must be inside of boundary."
+                            );
+                    }
                 }
             }
             x_ = x;
@@ -98,10 +99,29 @@ namespace splines2 {
             } else {
                 check_boundary(pBernsteinPoly->boundary_knots_);
             }
-            is_basis_latest_ = pBernsteinPoly->is_basis_latest_;
-            if (is_basis_latest_) {
-                poly_basis_ = pBernsteinPoly->poly_basis_;
+        }
+
+        explicit BernsteinPoly(const SplineBase* pSplineBase)
+        {
+            x_ = pSplineBase->get_x();
+            degree_ = pSplineBase->get_degree();
+            order_ = degree_ + 1;
+            rvec bound_knots { pSplineBase->get_boundary_knots() };
+            if (bound_knots.n_elem == 0) {
+                autoset_x_and_boundary(x_);
+            } else {
+                check_boundary(bound_knots);
             }
+        }
+
+        // explicit conversion
+        template <typename T>
+        explicit operator T() const {
+            T obj;
+            obj.set_x(x_)->
+                set_degree(degree_)->
+                set_boundary_knots(boundary_knots_);
+            return obj;
         }
 
         // given boundary_knots for consistency with SplineBase
@@ -125,20 +145,17 @@ namespace splines2 {
         inline BernsteinPoly* set_x(const rvec& x)
         {
             check_x(x);
-            is_basis_latest_ = false;
             return this;
         }
         inline BernsteinPoly* set_x(const double x)
         {
             check_x(num2vec(x));
-            is_basis_latest_ = false;
             return this;
         }
         inline BernsteinPoly* set_degree(const unsigned int degree)
         {
             degree_ = degree;
             order_ = degree + 1;
-            is_basis_latest_ = false;
             return this;
         }
         inline BernsteinPoly* set_order(const unsigned int order)
@@ -147,6 +164,14 @@ namespace splines2 {
                 set_degree(order - 1);
             } else {
                 throw std::range_error("The 'order' must be at least 1.");
+            }
+            return this;
+        }
+        // placeholder for conversion
+        inline BernsteinPoly* set_internal_knots(const rvec& internal_knots)
+        {
+            if (internal_knots.n_elem > 0) {
+                // do nothing
             }
             return this;
         }
@@ -176,16 +201,8 @@ namespace splines2 {
         }
 
         // construct polynomial basis by recursive formula
-        inline virtual rmat basis(const bool complete_basis = true)
+        inline rmat basis(const bool complete_basis = true)
         {
-            // early exit if latest
-            if (is_basis_latest_) {
-                if (complete_basis) {
-                    return poly_basis_;
-                }
-                // else
-                return mat_wo_col1(poly_basis_);
-            }
             // define output matrix
             rmat b_mat {
                 arma::ones(x_.n_elem, order_)
@@ -203,9 +220,6 @@ namespace splines2 {
                     b_mat(i, k) = saved;
                 }
             }
-            // prepare to return
-            poly_basis_ = b_mat;
-            is_basis_latest_ = true;
             if (complete_basis) {
                 return b_mat;
             }
@@ -214,8 +228,8 @@ namespace splines2 {
         }
 
         // derivatives
-        inline virtual rmat derivative(const unsigned int derivs = 1,
-                                       const bool complete_basis = true)
+        inline rmat derivative(const unsigned int derivs = 1,
+                               const bool complete_basis = true)
         {
             if (derivs == 0) {
                 throw std::range_error(
@@ -262,7 +276,7 @@ namespace splines2 {
         }
 
         // integrals
-        inline virtual rmat integral(const bool complete_basis = true)
+        inline rmat integral(const bool complete_basis = true)
         {
             BernsteinPoly bp_obj2 { this };
             // get basis matrix for (degree + 1) with intercept

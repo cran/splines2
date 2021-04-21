@@ -38,8 +38,7 @@ namespace splines2 {
         uvec x_outside_left_;
         uvec x_outside_right_;
 
-        using SplineBase::set_degree;
-        using SplineBase::set_order;
+        using SplineBase::SplineBase;
 
         // get null space vector for the second derivatives
         // of B-spline basis on boundary knotsn
@@ -111,11 +110,10 @@ namespace splines2 {
         }
 
         // compute spline df
-        inline void update_spline_df()
+        inline void update_spline_df() override
         {
             spline_df_ = internal_knots_.n_elem + 2;
         }
-
 
     public:
         // the default constructor
@@ -125,6 +123,7 @@ namespace splines2 {
         explicit NaturalSpline(const SplineBase* pSplineBase) :
             SplineBase(pSplineBase)
         {
+            stopifnot_simple_knot_sequence();
             degree_ = 3;
             order_ = 4;
             update_spline_df();
@@ -140,7 +139,7 @@ namespace splines2 {
             x_ = x;
             degree_ = 3;
             order_ = 4;
-            clean_knots(internal_knots, boundary_knots);
+            simplify_knots(internal_knots, boundary_knots);
             update_spline_df();
             update_x_outside();
         }
@@ -161,15 +160,15 @@ namespace splines2 {
             // determine internal knots by spline_df and x
             unsigned int n_internal_knots { spline_df_ - 2 };
             if (n_internal_knots == 0) {
-                clean_knots(rvec(), boundary_knots);
+                simplify_knots(rvec(), boundary_knots);
             } else {
                 rvec prob_vec { arma::linspace(0, 1, n_internal_knots + 2) };
                 prob_vec = prob_vec.subvec(1, n_internal_knots);
-                clean_knots(rvec(), boundary_knots);
+                simplify_knots(rvec(), boundary_knots);
                 // get quantiles of x within boundary only
                 rvec x_inside { get_inside_x(x, boundary_knots_) };
                 rvec internal_knots { arma_quantile(x_inside, prob_vec) };
-                clean_knots(internal_knots);
+                simplify_knots(internal_knots);
             }
             update_x_outside();
         }
@@ -182,16 +181,9 @@ namespace splines2 {
         //! complete spline basis
         //!
         //! @return arma::mat
-        inline rmat basis(const bool complete_basis = true)
+        inline rmat basis(const bool complete_basis = true) override
         {
-            // early exit if latest
-            if (is_basis_latest_) {
-                if (complete_basis) {
-                    return spline_basis_;
-                }
-                // else
-                return mat_wo_col1(spline_basis_);
-            }
+            stopifnot_simple_knot_sequence();
             this->set_null_colvecs();
             BSpline bs_obj { this };
             rmat bsMat { bs_obj.basis(true) };
@@ -224,18 +216,18 @@ namespace splines2 {
                 }
             }
             // apply null space
-            spline_basis_ = bsMat * null_colvecs_;
-            is_basis_latest_ = true;
+            bsMat *= null_colvecs_;
             if (complete_basis) {
-                return spline_basis_;
+                return bsMat;
             }
             // else
-            return mat_wo_col1(spline_basis_);
+            return mat_wo_col1(bsMat);
         }
 
         inline rmat derivative(const unsigned int derivs = 1,
-                               const bool complete_basis = true)
+                               const bool complete_basis = true) override
         {
+            stopifnot_simple_knot_sequence();
             this->set_null_colvecs();
             BSpline bs_obj { this };
             rmat bsMat { bs_obj.derivative(derivs, true) };
@@ -291,8 +283,9 @@ namespace splines2 {
             return mat_wo_col1(out);
         }
 
-        inline rmat integral(const bool complete_basis = true)
+        inline rmat integral(const bool complete_basis = true) override
         {
+            stopifnot_simple_knot_sequence();
             this->set_null_colvecs();
             BSpline bs_obj { this };
             rmat bsMat { bs_obj.integral(true) };
@@ -338,34 +331,46 @@ namespace splines2 {
         }
 
         // re-define some "setter" functions
-        inline virtual NaturalSpline* set_x(const rvec& x)
+        inline NaturalSpline* set_x(const rvec& x) override
         {
             x_ = x;
             is_x_index_latest_ = false;
-            is_basis_latest_ = false;
             is_x_outside_latest_ = false;
             return this;
         }
-        inline virtual NaturalSpline* set_x(const double x)
+        inline NaturalSpline* set_x(const double x) override
         {
             x_ = num2vec(x);
             is_x_index_latest_ = false;
-            is_basis_latest_ = false;
             is_x_outside_latest_ = false;
             return this;
         }
-        inline virtual NaturalSpline* set_boundary_knots(
+        inline NaturalSpline* set_boundary_knots(
             const rvec& boundary_knots
-            )
+            ) override
         {
-            clean_knots(internal_knots_, boundary_knots);
+            simplify_knots(internal_knots_, boundary_knots);
             is_knot_sequence_latest_ = false;
             is_x_index_latest_ = false;
-            is_basis_latest_ = false;
             is_x_outside_latest_ = false;
             return this;
         }
 
+        // placeholders
+        inline NaturalSpline* set_degree(const unsigned int degree) override
+        {
+            if (degree) {
+                // do nothing
+            }
+            return this;
+        }
+        inline NaturalSpline* set_order(const unsigned int order) override
+        {
+            if (order) {
+                // do nothing
+            }
+            return this;
+        }
 
     };
 

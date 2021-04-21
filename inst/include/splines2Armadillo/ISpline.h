@@ -31,52 +31,8 @@ namespace splines2 {
     // define a class for M-splines
     class ISpline : public SplineBase
     {
-        // inherits constructors
-        using SplineBase::SplineBase;
-
-    public:
-        // function members
-
-        //! Compute I-spline basis
-        //!
-        //! @param complete_basis A `bool` value indicating whether to return a
-        //! complete spline basis
-        //!
-        //! @return arma::mat
-        inline virtual rmat basis(const bool complete_basis = true)
-        {
-            // early exit if latest
-            if (is_basis_latest_) {
-                if (complete_basis) {
-                    return spline_basis_;
-                }
-                return mat_wo_col1(spline_basis_);
-            }
-            // else do generation
-            MSpline msp_obj { this };
-            spline_basis_ = msp_obj.integral(true);
-            is_basis_latest_ = true;
-            if (complete_basis) {
-                return spline_basis_;
-            }
-            return mat_wo_col1(spline_basis_);
-        }
-
-        inline virtual rmat derivative(const unsigned int derivs = 1,
-                                       const bool complete_basis = true)
-        {
-            if (derivs == 0) {
-                throw std::range_error(
-                    "'derivs' has to be a positive integer.");
-            }
-            MSpline msp_obj { this };
-            if (derivs == 1) {
-                return msp_obj.basis(complete_basis);
-            }
-            return msp_obj.derivative(derivs - 1, complete_basis);
-        }
-
-        inline virtual rmat integral(const bool complete_basis = true)
+    protected:
+        inline rmat get_integral_simple()
         {
             BSpline bsp_obj { this };
             bsp_obj.set_degree(degree_ + 1);
@@ -94,6 +50,64 @@ namespace splines2 {
                         i_mat(i, j) = numer(j);
                     }
                 }
+            }
+            return i_mat;
+        }
+
+        inline rmat get_integral_extended()
+        {
+            ISpline isp_obj {
+                x_, surrogate_internal_knots_, degree_,
+                surrogate_boundary_knots_
+            };
+            rmat out { isp_obj.get_integral_simple() };
+            // remove first and last #degree basis functions
+            return out.cols(degree_, out.n_cols - order_);
+        }
+
+    public:
+        // inherits constructors
+        using SplineBase::SplineBase;
+
+        // function members
+
+        //! Compute I-spline basis
+        //!
+        //! @param complete_basis A `bool` value indicating whether to return a
+        //! complete spline basis
+        //!
+        //! @return arma::mat
+        inline rmat basis(const bool complete_basis = true) override
+        {
+            MSpline msp_obj { this };
+            rmat out { msp_obj.integral(true) };
+            if (complete_basis) {
+                return out;
+            }
+            return mat_wo_col1(out);
+        }
+
+        inline rmat derivative(const unsigned int derivs = 1,
+                               const bool complete_basis = true) override
+        {
+            if (derivs == 0) {
+                throw std::range_error(
+                    "'derivs' has to be a positive integer.");
+            }
+            MSpline msp_obj { this };
+            if (derivs == 1) {
+                return msp_obj.basis(complete_basis);
+            }
+            return msp_obj.derivative(derivs - 1, complete_basis);
+        }
+
+        inline rmat integral(const bool complete_basis = true) override
+        {
+            rmat i_mat;
+            if (is_extended_knot_sequence_) {
+                i_mat = get_integral_extended();
+            } else {
+                i_mat = get_integral_simple();
             }
             // remove the first column if needed
             if (complete_basis) {

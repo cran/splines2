@@ -1,7 +1,6 @@
 Package: splines2
 Title: Regression Spline Functions and Classes
-Version: 0.4.2
-Date: 2021-02-20
+Version: 0.4.3
 Authors@R: c(
     person(given = "Wenjie", family = "Wang",
            email = "wang@wwenjie.org",
@@ -32,9 +31,9 @@ BugReports: https://github.com/wenjie2wang/splines2/issues
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 NeedsCompilation: yes
-Packaged: 2021-02-21 02:50:45 UTC; wenjie
+Packaged: 2021-04-21 02:56:51 UTC; wenjie
 Author: Wenjie Wang [aut, cre] (<https://orcid.org/0000-0003-0363-3180>),
   Jun Yan [aut] (<https://orcid.org/0000-0003-4401-7296>)
 Maintainer: Wenjie Wang <wang@wwenjie.org>
 Repository: CRAN
-Date/Publication: 2021-02-21 08:00:02 UTC
+Date/Publication: 2021-04-21 09:40:05 UTC

@@ -6,7 +6,7 @@ knitr::opts_chunk$set(fig.width = 7, fig.height = 4)
 library(graphics)
 par(mar = c(2.5, 2.5, 0.2, 0.1), mgp = c(1.5, 0.5, 0))
 
-## ----bSpline, fig.cap="B-splines of degree one with two internal knots."------
+## ----bSpline, fig.cap="B-splines of degree one with three internal knots placed at 0.3, 0.5, and 0.6."----
 library(splines2)
 knots <- c(0.3, 0.5, 0.6)
 x <- seq(0, 1, 0.01)
@@ -40,7 +40,7 @@ stopifnot(is_equivalent(dbsMat, deriv(bsMat)))
 ## ----reset-par-mSpline, echo = FALSE------------------------------------------
 par(mfrow = c(1, 1))
 
-## ----mSpline, fig.cap = "Quadratic M-spline with three internal knots."-------
+## ----mSpline, fig.cap = "Quadratic M-spline with three internal knots placed at 0.3, 0.5, and 0.6."----
 msMat <- mSpline(x, knots = knots, degree = 2, intercept = TRUE)
 matplot(x, msMat, type = "l", ylab = "y")
 abline(v = knots, lty = 2, col = "gray")
@@ -68,7 +68,7 @@ ipmsMat <- mSpline(x1, knots = knots, degree = 3, intercept = TRUE,
 matplot(x1, ipmsMat, type = "l", xlab = "x", ylab = "Integrals")
 abline(v = seq.int(0, 3), h = seq.int(0, 3), lty = 2, col = "gray")
 
-## ----iSpline, fig.cap = "I-splines of degree two with three internal knots."----
+## ----iSpline, fig.cap = "I-splines of degree two with three internal knots placed at 0.3, 0.5, and 0.6."----
 isMat <- iSpline(x, knots = knots, degree = 2, intercept = TRUE)
 matplot(x, isMat, type = "l", ylab = "y")
 abline(h = 1, v = knots, lty = 2, col = "gray")
@@ -80,7 +80,7 @@ stopifnot(is_equivalent(msMat, deriv(isMat)))
 dmsMat3 <- deriv(isMat, 2)
 stopifnot(is_equivalent(dmsMat1, dmsMat3))
 
-## ----cSpline-scaled, fig.cap = "C-splines of degree two with three internal knots."----
+## ----cSpline-scaled, fig.cap = "C-splines of degree two with three internal knots placed at 0.3, 0.5, and 0.6."----
 csMat1 <- cSpline(x, knots = knots, degree = 2, intercept = TRUE)
 matplot(x, csMat1, type = "l", ylab = "y")
 abline(h = 1, v = knots, lty = 2, col = "gray")

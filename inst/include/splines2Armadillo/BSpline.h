@@ -29,29 +29,9 @@ namespace splines2 {
     // define a class for B-splines
     class BSpline : public SplineBase
     {
-        // inherits constructors
-        using SplineBase::SplineBase;
-
-    public:
-        // function members
-
-        //! Compute B-spline basis
-        //!
-        //! @param complete_basis A `bool` value indicating whether to return a
-        //! complete spline basis
-        //!
-        //! @return arma::mat
-        inline virtual rmat basis(const bool complete_basis = true)
+    protected:
+        inline rmat get_basis_simple()
         {
-            // early exit if latest
-            if (is_basis_latest_) {
-                if (complete_basis) {
-                    return spline_basis_;
-                }
-                // else
-                return mat_wo_col1(spline_basis_);
-            }
-            // else do the generation
             update_spline_df();
             update_x_index();
             // define output matrix
@@ -62,11 +42,10 @@ namespace splines2 {
             for (size_t i {0}; i < x_.n_elem; ++i) {
                 b_mat(i, x_index_(i)) = 1;
             }
-            // only need knot sequence for degree > 0
+            // only need knot sequence for degree > 0 unless extended
             if (degree_ > 0) {
                 update_knot_sequence();
             }
-            // main loop
             for (unsigned int k {1}; k <= degree_; ++k) {
                 const unsigned int k_offset { degree_ - k };
                 // use the Cox-de Boor recursive formula
@@ -80,14 +59,16 @@ namespace splines2 {
                         size_t j_index { x_index_(i) + j };
                         size_t i1 { j_index + k_offset + 1 };
                         size_t i2 { j_index + order_ };
-                        double den { knot_sequence_(i2) - knot_sequence_(i1) };
-                        // the way to generate x_index seems to make den nonzero
+                        double den {
+                            knot_sequence_(i2) - knot_sequence_(i1)
+                        };
                         // if (isAlmostEqual(den)) {
                         //     if (j != 0 || knot_sequence_(i2) - x_(i) != 0) {
                         //         b_mat(i, j_index) = saved;
                         //     }
                         //     saved = 0.0;
                         // } else {
+                        // no need to check for distinct internal knots
                         double term { b_mat(i, j_index) / den };
                         b_mat(i, j_index) = saved +
                             (knot_sequence_(i2) - x_(i)) * term;
@@ -97,48 +78,38 @@ namespace splines2 {
                     b_mat(i, x_index_(i) + k) = saved;
                 }
             }
-            // about to return
-            spline_basis_ = b_mat;
-            is_basis_latest_ = true;
-            if (complete_basis) {
-                return b_mat;
-            }
-            // else
-            return mat_wo_col1(b_mat);
+            return b_mat;
         }
 
-        // derivatives of B-splines
-        inline virtual rmat derivative(
-            const unsigned int derivs = 1,
-            const bool complete_basis = true
+        inline rmat get_basis_extended()
+        {
+            BSpline bsp_obj {
+                x_, surrogate_internal_knots_, degree_,
+                surrogate_boundary_knots_
+            };
+            rmat out { bsp_obj.get_basis_simple() };
+            // remove first and last #degree basis functions
+            return out.cols(degree_, out.n_cols - order_);
+        }
+
+        inline rmat get_derivative_simple(
+            const unsigned int derivs = 1
             )
         {
-            if (derivs == 0) {
-                throw std::range_error(
-                    "'derivs' has to be a positive integer.");
-            }
-            // early exit if derivs is large enough
-            update_spline_df();
-            if (degree_ < derivs) {
-                if (complete_basis) {
-                    return arma::zeros(x_.n_elem, spline_df_);
-                }
-                if (spline_df_ == 1) {
-                    throw std::range_error("No column left in the matrix.");
-                }
-                return arma::zeros(x_.n_elem, spline_df_ - 1);
-            }
             // create a copy of this object
-            BSpline bs_obj2 { this };
-            bs_obj2.set_degree(degree_ - derivs);
+            BSpline bsp_obj { this };
+            bsp_obj.set_degree(degree_ - derivs);
             // get basis matrix for (degree - derivs)
-            rmat d_mat { bs_obj2.basis(true) };
-            // add zero columns
-            d_mat = add_zero_cols(d_mat, spline_df_ - d_mat.n_cols);
+            rmat d_mat { bsp_obj.get_basis_simple() };
             // make sure knot sequence and x index are latest
             update_knot_sequence();
             update_x_index();
-            // main loop
+            // add zero columns
+            update_spline_df();
+            // if (spline_df_ <= d_mat.n_cols) {
+            //     throw std::range_error("FIXME: get_derivative_simple()");
+            // }
+            d_mat = add_zero_cols(d_mat, spline_df_ - d_mat.n_cols);
             for (unsigned int k {1}; k <= derivs; ++k) {
                 const unsigned int k_offset { derivs - k };
                 const size_t numer { degree_ - k_offset };
@@ -148,7 +119,9 @@ namespace splines2 {
                         size_t j_index { x_index_(i) + j };
                         size_t i1 { j_index + k_offset + 1 };
                         size_t i2 { j_index + order_ };
-                        double den { knot_sequence_(i2) - knot_sequence_(i1) };
+                        double den {
+                            knot_sequence_(i2) - knot_sequence_(i1)
+                        };
                         double term { numer * d_mat(i, j_index) / den };
                         d_mat(i, j_index) = saved - term;
                         saved = term;
@@ -156,22 +129,29 @@ namespace splines2 {
                     d_mat(i, x_index_(i) + numer) = saved;
                 }
             }
-            // remove the first column if needed
-            if (complete_basis) {
-                return d_mat;
-            }
-            // else
-            return mat_wo_col1(d_mat);
+            return d_mat;
         }
 
-        // integral of B-splines
-        inline virtual rmat integral(const bool complete_basis = true)
+        inline rmat get_derivative_extended(
+            const unsigned int derivs = 1
+            )
+        {
+            BSpline bsp_obj {
+                x_, surrogate_internal_knots_, degree_,
+                surrogate_boundary_knots_
+            };
+            rmat out { bsp_obj.get_derivative_simple(derivs) };
+            // remove first and last #degree basis functions
+            return out.cols(degree_, out.n_cols - order_);
+        }
+
+        inline rmat get_integral_simple()
         {
             // create a copy of this object
-            BSpline bs_obj2 { this };
-            bs_obj2.set_degree(degree_ + 1);
-            rmat i_mat { bs_obj2.basis(false) };
-            rvec knot_sequence_ord { bs_obj2.get_knot_sequence() };
+            BSpline bsp_obj { this };
+            bsp_obj.set_degree(degree_ + 1);
+            rmat i_mat { bsp_obj.basis(false) };
+            rvec knot_sequence_ord { bsp_obj.get_knot_sequence() };
             // make sure x index are latest
             update_x_index();
             // compute t_{(i+1)+k+1} - t_{i+1} of s_{k}
@@ -195,6 +175,92 @@ namespace splines2 {
                         i_mat(i, j) = numer1(j) / order_;
                     }
                 }
+            }
+            return i_mat;
+        }
+
+        inline rmat get_integral_extended()
+        {
+            BSpline bsp_obj {
+                x_, surrogate_internal_knots_, degree_,
+                surrogate_boundary_knots_
+            };
+            rmat out { bsp_obj.get_integral_simple() };
+            // remove first and last #degree basis functions
+            return out.cols(degree_, out.n_cols - order_);
+        }
+
+    public:
+        // inherits constructors
+        using SplineBase::SplineBase;
+
+        // function members
+
+        //! Compute B-spline basis functions
+        //!
+        //! @param complete_basis A `bool` value indicating whether to return a
+        //! complete spline basis
+        //!
+        //! @return arma::mat
+        inline rmat basis(const bool complete_basis = true) override
+        {
+            rmat b_mat;
+            if (is_extended_knot_sequence_) {
+                b_mat = get_basis_extended();
+            } else {
+                b_mat = get_basis_simple();
+            }
+            // about to return
+            if (complete_basis) {
+                return b_mat;
+            }
+            // else
+            return mat_wo_col1(b_mat);
+        }
+
+        // derivatives of B-splines
+        inline rmat derivative(
+            const unsigned int derivs = 1,
+            const bool complete_basis = true
+            ) override
+        {
+            if (derivs == 0) {
+                throw std::range_error(
+                    "'derivs' has to be a positive integer.");
+            }
+            // early exit if derivs is large enough
+            update_spline_df();
+            if (degree_ < derivs) {
+                if (complete_basis) {
+                    return arma::zeros(x_.n_elem, spline_df_);
+                }
+                if (spline_df_ == 1) {
+                    throw std::range_error("No column left in the matrix.");
+                }
+                return arma::zeros(x_.n_elem, spline_df_ - 1);
+            }
+            rmat d_mat;
+            if (is_extended_knot_sequence_) {
+                d_mat = get_derivative_extended(derivs);
+            } else {
+                d_mat = get_derivative_simple(derivs);
+            }
+            // remove the first column if needed
+            if (complete_basis) {
+                return d_mat;
+            }
+            // else
+            return mat_wo_col1(d_mat);
+        }
+
+        // integral of B-splines
+        inline rmat integral(const bool complete_basis = true) override
+        {
+            rmat i_mat;
+            if (is_extended_knot_sequence_) {
+                i_mat = get_integral_extended();
+            } else {
+                i_mat = get_integral_simple();
             }
             // remove the first column if needed
             if (complete_basis) {

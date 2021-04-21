@@ -1,9 +1,24 @@
+# splines2 0.4.3
+
+## New features
+
+* Enabled extended knot sequence that allows multiplicity of internal knots for
+  B-splines, M-splines, I-splines, and C-splines in the C++ interface.
+* Added type conversion to `BernsteinPoly` and `PeriodicMSpline` objects to the
+  C++ interface.
+
+## Minor changes
+
+* Added testing examples for constructing spline basis functions via the C++
+  interface.
+
+
 # splines2 0.4.2
 
 ## New features
 
 * Added `knots()` methods to extract internal knots and boundary knots from a
-  given *spline2* object.
+  given *splines2* object.
 
 ## Major changes
 

@@ -31,12 +31,9 @@ namespace splines2 {
     // define a class for M-splines
     class CSpline : public SplineBase
     {
-        // inherits constructors
-        using SplineBase::SplineBase;
-
     private:
         // hide pure virtual function for integral here
-        inline rmat integral(const bool complete_basis = true)
+        inline rmat integral(const bool complete_basis = true) override
         {
             if (complete_basis) {
                 // do nothing
@@ -61,7 +58,10 @@ namespace splines2 {
         }
 
     public:
-        // function members
+        // inherits constructors
+        using SplineBase::SplineBase;
+
+        // additional function members
         inline arma::rowvec get_scales()
         {
             return scales_;
@@ -73,33 +73,24 @@ namespace splines2 {
         //! complete spline basis
         //!
         //! @return arma::mat
-        inline virtual rmat basis(const bool complete_basis = true)
+        inline rmat basis(const bool complete_basis = true) override
         {
-            // early exit if latest
-            if (is_basis_latest_) {
-                if (complete_basis) {
-                    return spline_basis_;
-                }
-                return mat_wo_col1(spline_basis_);
-            }
-            // else do generation
             ISpline isp_obj { this };
-            spline_basis_ = isp_obj.integral(true);
-            is_basis_latest_ = true;
+            rmat out { isp_obj.integral(true) };
             // compute the scale on the right boundary knot
             scales_ = mat2rowvec(
                 isp_obj.set_x(boundary_knots_(1))->integral(true)
                 );
             // rescale each column
-            spline_basis_.each_row() /= scales_;
+            out.each_row() /= scales_;
             if (complete_basis) {
-                return spline_basis_;
+                return out;
             }
-            return mat_wo_col1(spline_basis_);
+            return mat_wo_col1(out);
         }
 
-        inline virtual rmat derivative(const unsigned int derivs = 1,
-                                       const bool complete_basis = true)
+        inline rmat derivative(const unsigned int derivs = 1,
+                               const bool complete_basis = true) override
         {
             if (derivs == 0) {
                 throw std::range_error(
