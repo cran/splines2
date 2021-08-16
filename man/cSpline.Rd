@@ -49,7 +49,7 @@ default, they are the range of \code{x} excluding \code{NA}.  If both
 parameters do not depend on \code{x}. Data can extend beyond
 \code{Boundary.knots}.}
 
-\item{derivs}{A non-negative integer specifying the order of derivatives of
+\item{derivs}{A nonnegative integer specifying the order of derivatives of
 C-splines. The default value is \code{0L} for C-spline basis functions.}
 
 \item{scale}{A logical value indicating if scaling C-splines is required. If
@@ -72,7 +72,7 @@ integrating I-spline basis for a polynomial spline or the corresponding
 derivatives.
 }
 \details{
-It is an implementation of the close form C-spline basis derived from the
+It is an implementation of the closed-form C-spline basis derived from the
 recursion formula of I-splines and M-splines.
 }
 \examples{

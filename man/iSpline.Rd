@@ -47,7 +47,7 @@ default, they are the range of \code{x} excluding \code{NA}.  If both
 parameters do not depend on \code{x}. Data can extend beyond
 \code{Boundary.knots}.}
 
-\item{derivs}{A non-negative integer specifying the order of derivatives of
+\item{derivs}{A nonnegative integer specifying the order of derivatives of
 I-splines.}
 
 \item{...}{Optional arguments that are not used.}
@@ -64,7 +64,7 @@ Generates the I-spline (integral of M-spline) basis matrix for a polynomial
 spline or the corresponding derivatives of given order.
 }
 \details{
-It is an implementation of the close form I-spline basis based on the
+It is an implementation of the closed-form I-spline basis based on the
 recursion formula given by Ramsay (1988).
 }
 \examples{

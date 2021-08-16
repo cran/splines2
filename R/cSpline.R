@@ -21,7 +21,7 @@
 ##' integrating I-spline basis for a polynomial spline or the corresponding
 ##' derivatives.
 ##'
-##' It is an implementation of the close form C-spline basis derived from the
+##' It is an implementation of the closed-form C-spline basis derived from the
 ##' recursion formula of I-splines and M-splines.
 ##'
 ##' @inheritParams bSpline
@@ -35,7 +35,7 @@
 ##'     shape-restricted regression, \code{intercept = TRUE} should be set even
 ##'     when an intercept term is considered additional to the spline basis in
 ##'     the model.
-##' @param derivs A non-negative integer specifying the order of derivatives of
+##' @param derivs A nonnegative integer specifying the order of derivatives of
 ##'     C-splines. The default value is \code{0L} for C-spline basis functions.
 ##' @param scale A logical value indicating if scaling C-splines is required. If
 ##'     \code{TRUE} by default, each C-spline basis is scaled to have unit
@@ -61,7 +61,7 @@ cSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
 {
     ## check inputs
     if ((derivs <- as.integer(derivs)) < 0) {
-        stop("The 'derivs' must be a non-negative integer.")
+        stop("The 'derivs' must be a nonnegative integer.")
     }
     if ((degree <- as.integer(degree)) < 0)
         stop("The 'degree' must be a nonnegative integer.")
@@ -146,6 +146,8 @@ cSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
     }
     ## add class
     if (scale || derivs == 0) {
+        ## add "scale" to attributes for predict(), etc.
+        attr(out, "scale") <- scale
         class(out) <- c("matrix", "cSpline")
     } else if (derivs == 1) {
         class(out) <- c("matrix", "iSpline")

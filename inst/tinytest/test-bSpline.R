@@ -13,6 +13,10 @@ b_knots <- c(0, 1)
 
 ## default cubic splines without internal knots
 expect_equivalent(bSpline(x), v2$bSpline(x))
+expect_equivalent(bSpline(x, derivs = 1), dbs(x))
+expect_equivalent(bSpline(x, derivs = 2), dbs(x, derivs = 2))
+expect_equivalent(bSpline(x, integral = TRUE), ibs(x))
+expect_equivalent(bSpline(x), bSpline(x, derivs = 1, integral = TRUE))
 
 ## cubic splines with specified df
 expect_equivalent(bSpline(x, df = 5),
@@ -63,7 +67,7 @@ expect_true(isNumMatrix(
             degree = 0, intercept = TRUE),
     14L, 4L))
 
-## true close form formula given the all knots and degree
+## true closed-form formula given the all knots and degree
 ## test with two internal knots
 x3 <- seq.int(0, 5, 0.1)
 b0_1 <- function(x) as.numeric(x >= 0 & x < 1)
@@ -121,6 +125,7 @@ expect_error(bSpline(x, degree = 0))
 
 ## error if any internal knot is placed outside boundary
 expect_error(bSpline(x, knots = c(- 0.1, 0.5), degree = 0))
+expect_error(bSpline(x, knots = c(range(x), 0.5), degree = 0))
 
 ## warning if any x outside of boundary
 expect_warning(bSpline(c(x, 10), knots = knots, degree = 0,

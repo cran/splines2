@@ -1,3 +1,25 @@
+# splines2 0.4.4
+
+## New features
+
+* Added the `makepredictcall()` methods for all available spline basis functions
+  to help `model.frame.default()` create the right matrices when predicting from
+  models with terms such as `bSpline()`, etc.  Thanks Zheyuan Li for suggesting
+  this feature.
+* Added arguments `derivs` and `integal` to `bSpline()` for consistency with
+  `mSpline()` and `bernsteinPoly()`, etc.
+
+## Minor changes
+
+* Made the internal checking procedure more strict to throw error if any
+  internal knots is placed at or outside boundary:
+  [issue 5](https://github.com/wenjie2wang/splines2/issues/5).
+
+## Bug fixes
+
+* Fixed the `predict()` method for `cSpline` objects when `scale = FALSE`.
+
+
 # splines2 0.4.3
 
 ## New features
@@ -22,7 +44,7 @@
 
 ## Major changes
 
-* Updated the generation of the knot sequence for period M-splines following
+* Updated the generation of the knot sequence for periodic M-splines following
   Piegl and Tiller (1997), which relaxed the previous requirement that
   `length(knots) >= degree` to `length(knots) >= degree - 1`.
 
@@ -36,7 +58,8 @@
 * Added argument `periodic` to function `mSpline()` for periodic M-splines.
 * Added argument `integral` to function `mSpline()` for integrals of M-splines
   or periodic M-splines.
-* Added `deriv`, `predict`, and `print` method for `naturalSpline` class object.
+* Added `deriv()`, `predict()`, and `print()` method for `naturalSpline` class
+  object.
 
 ## Minor changes
 
@@ -56,7 +79,7 @@
 
 ## New features
 
-* Added function `BersteinPoly()` providing implementation of generalized
+* Added function `bernsteinPoly()` providing implementation of generalized
   Bernstein polynomials.
 * Added C++ interface that can be easily integrated with **Rcpp**.
 

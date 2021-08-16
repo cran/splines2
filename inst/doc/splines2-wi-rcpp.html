@@ -12,7 +12,7 @@
 
 <meta name="author" content="Wenjie Wang" />
 
-<meta name="date" content="2021-04-20" />
+<meta name="date" content="2021-08-15" />
 
 <title>Using splines2 with Rcpp</title>
 
@@ -163,23 +163,23 @@ div.csl-indent {
 
 <h1 class="title toc-ignore">Using splines2 with Rcpp</h1>
 <h4 class="author">Wenjie Wang</h4>
-<h4 class="date">2021-04-20</h4>
+<h4 class="date">2021-08-15</h4>
 
 
 
-<p>In this package vignette, we introduce how to use the C++ header-only library that <strong>splines2</strong> contains with the <strong>Rcpp</strong> package <span class="citation">(Eddelbuettel 2013)</span> for constructing spline basis functions. The introduction is intended for package developers who would like to use <strong>splines2</strong> package at C++ level.</p>
+<p>In this package vignette, we introduce how to use the C++ header-only library that <strong>splines2</strong> contains with the <strong>Rcpp</strong> package <span class="citation">(Eddelbuettel 2013)</span> for constructing spline basis functions. The introduction is intended for package developers who would like to use <strong>splines2</strong> package at C++ level by adding <strong>splines2</strong> to the <code>LinkingTo</code> field of package <code>DESCRIPTION</code> file.</p>
 <div id="header-file-and-name-space" class="section level2">
 <h2>Header File and Name Space</h2>
-<p>Different with the procedure based functions in the R interface, <strong>splines2</strong> provides several spline classes in its C++ interface for ease of usage and maintenance. The implementations use the <strong>Armadillo</strong> <span class="citation">(Sanderson 2016)</span> library with help of <strong>RcppArmadillo</strong> <span class="citation">(Eddelbuettel and Sanderson 2014)</span> and require C++11. We may include the header file named <code>splines2Armadillo.h</code> to get the access to all the classes and implementations in the name space <code>splines2</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppArmadillo.h&gt;</span></span>
+<p>Different with the procedure-based functions in the R interface, the C++ interface follows the commonly-used object-oriented design in C++ for ease of usage and maintenance. The implementations use the <strong>Armadillo</strong> <span class="citation">(Sanderson 2016)</span> library with help of <strong>RcppArmadillo</strong> <span class="citation">(Eddelbuettel and Sanderson 2014)</span> and require C++11. We assume that  is enabled for compilation henceforth. We may include the header file named <code>splines2Armadillo.h</code> to get the access to all the classes and implementations in the name space <code>splines2</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppArmadillo.h&gt;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">// include header file from splines2 package</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;splines2Armadillo.h&gt;</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// [[Rcpp::plugins(cpp11)]]</span></span></code></pre></div>
 <p>To use <code>Rcpp::sourceCpp()</code>, one may need to add <code>[[Rcpp::depends()]]</code> as follows:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [[Rcpp::depends(RcppArmadillo)]]</span></span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [[Rcpp::depends(RcppArmadillo)]]</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">// [[Rcpp::depends(splines2)]]</span></span></code></pre></div>
 <p>For ease of demonstration, we assume the following <em>using-directives</em>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="kw">namespace</span> arma</span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="kw">namespace</span> arma</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="kw">namespace</span> splines2</span></code></pre></div>
 </div>
 <div id="generalized-bernstein-polynomials" class="section level2">
@@ -188,7 +188,7 @@ div.csl-indent {
 <div id="constructors" class="section level3">
 <h3>Constructors</h3>
 <p>The main non-default constructor is as follows:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>BernsteinPoly<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;</span> x<span class="op">,</span></span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>BernsteinPoly<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;</span> x<span class="op">,</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> degree<span class="op">,</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> vec<span class="op">&amp;</span> boundary_knots <span class="op">=</span> vec<span class="op">());</span></span></code></pre></div>
 <p>In addition, two explicit constructors are provided for <code>BernsteinPoly*</code> and <code>SplineBase*</code>, which set <code>x</code>, <code>degree</code>, and <code>boundary_knots</code> from the objects that the pointers point to.</p>
@@ -202,12 +202,12 @@ div.csl-indent {
 <li><code>integral()</code> for integrals of basis functions</li>
 </ul>
 <p>The specific function signatures are as follows:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mat basis<span class="op">(</span><span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mat basis<span class="op">(</span><span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>mat derivative<span class="op">(</span><span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> derivs <span class="op">=</span> <span class="dv">1</span><span class="op">,</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>mat integral<span class="op">(</span><span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span></code></pre></div>
 <p>In addition, we may <em>set</em> and <em>get</em> the specifications through the following <em>setter</em> and <em>getter</em> functions, respectively.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// setter functions</span></span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// setter functions</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>BernsteinPoly<span class="op">*</span> set_x<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>BernsteinPoly<span class="op">*</span> set_x<span class="op">(</span><span class="at">const</span> <span class="dt">double</span><span class="op">);</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>BernsteinPoly<span class="op">*</span> set_degree<span class="op">(</span><span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span><span class="op">);</span></span>
@@ -225,46 +225,57 @@ div.csl-indent {
 </div>
 <div id="classes-for-spline-basis-functions" class="section level2">
 <h2>Classes for Spline Basis Functions</h2>
-<p>A virtual base class named <code>SplineBase</code> is implemented to support a variety of classes for spline basis functions including <code>BSpline</code>, <code>MSpline</code>, <code>ISpline</code>, <code>CSpline</code>, <code>NaturalSpline</code>, <code>PeriodicMSpline</code>. Their names are self-explanatory.</p>
+<p>A virtual base class named <code>SplineBase</code> is implemented to support a variety of classes for spline basis functions including</p>
+<ul>
+<li><code>BSpline</code> for B-splines;</li>
+<li><code>MSpline</code> for M-splines;</li>
+<li><code>ISpline</code> for I-splines;</li>
+<li><code>CSpline</code> for C-splines;</li>
+<li><code>NaturalSpline</code> for natural cubic splines;</li>
+<li><code>PeriodicMSpline</code> for periodic M-splines;</li>
+<li><code>BernsteinPoly</code> for Bernstein polynomials.</li>
+</ul>
 <div id="constructors-of-bspline-mspline-ispline-and-cspline" class="section level3">
 <h3>Constructors of <code>BSpline</code>, <code>MSpline</code>, <code>ISpline</code>, and <code>CSpline</code></h3>
 <p>The <code>BSpline</code>, <code>MSpline</code>, <code>ISpline</code>, and <code>CSpline</code> classes share the same constructors inherited from the <code>SplineBase</code> class. There are four constructors in addition to the default constructor.</p>
-<p>The first non-default constructor is called when internal knots are explicitly specified. For example,</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. specified internal_knots</span></span>
+<p>The first non-default constructor is invoked when internal knots are explicitly specified as the second argument. Taking B-splines as an example, the first non-default constructor of a <code>BSpline</code> object is</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. specified internal_knots</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>BSpline<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;</span> x<span class="op">,</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> vec<span class="op">&amp;</span> internal_knots<span class="op">,</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> degree <span class="op">=</span> <span class="dv">3</span><span class="op">,</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> vec<span class="op">&amp;</span> boundary_knots <span class="op">=</span> vec<span class="op">());</span></span></code></pre></div>
-<p>The second non-default constructor is called when an unsigned integer representing the degree of freedom of the <em>complete spline basis functions</em> (different with <code>df</code> in the R interface) is specified. Then the number of internal knots is computed as <code>spline_df - degree - 1</code> and the placement of internal knots uses quantiles of specified <code>x</code>. For example,</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. specified spline degree of freedom (df)</span></span>
+<p>The second non-default constructor is called when an unsigned integer is specified as the second argument, which represents the degree of freedom of the <em>complete spline basis functions</em> (different with <code>df</code> in the R interface) is specified. Then the number of internal knots is computed as <code>spline_df - degree - 1</code> and the placement of internal knots uses quantiles of specified <code>x</code> within boundary.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. specified spline degree of freedom (df)</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>BSpline<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;</span> x<span class="op">,</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> spline_df<span class="op">,</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> degree <span class="op">=</span> <span class="dv">3</span><span class="op">,</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> vec<span class="op">&amp;</span> boundary_knots <span class="op">=</span> vec<span class="op">());</span></span></code></pre></div>
-<p>The third non-default constructor is intended for basis functions with an extended knot sequence. The multiplicities of knots in the sequence can be different (but should not be greater than <code>degree + 1</code>). For example,</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. specified degree and (extended) knot sequence</span></span>
+<p>The third non-default constructor is intended for basis functions with an extended knot sequence, where the multiplicities of the knots can be more than one.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. specified degree and (extended) knot sequence</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>BSpline<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;</span> x<span class="op">,</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> degree<span class="op">,</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> vec<span class="op">&amp;</span> knot_sequence<span class="op">);</span></span></code></pre></div>
-<p>The fourth non-default constructor is explicit and takes a pointer to a base class object. It can be useful when we want to create a new object using the same specification (<code>degree</code>, <code>internal_knots</code>, <code>boundary_knots</code>, etc.) of an existing object. For example,</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 4. create a new object from a base class pointer</span></span>
+<p>The fourth non-default constructor is explicit and takes a pointer to a base class object, which can be useful when we want to create a new object using the same specification (<code>x</code>, <code>degree</code>, <code>internal_knots</code>, and <code>boundary_knots</code>) of an existing object (not necessarily a <code>BSpline</code> object).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 4. create a new object from a base class pointer</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>BSpline<span class="op">(</span><span class="at">const</span> SplineBase<span class="op">*</span> pSplineBase<span class="op">);</span></span></code></pre></div>
+<p>This constructor also allows us to easily switch between different types of splines. For example, we create a <code>BSpline</code> object <code>bsp_obj</code> form an existing <code>MSpline</code> object <code>msp_obj</code> with the same specification as follows:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>BSpline bsp_obj <span class="op">{</span> <span class="op">&amp;</span>msp_obj <span class="op">};</span></span></code></pre></div>
 </div>
 <div id="constructors-of-naturalspline" class="section level3">
 <h3>Constructors of <code>NaturalSpline</code></h3>
 <p>The <code>NaturalSpline</code> represents the class for natural cubic splines. Thus, its constructors do not allow specification of <code>degree</code>. The first non-default constructor is called when internal knots are explicitly specified.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. specified internal_knots</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>NaturalSpline<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;</span> x<span class="op">,</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> vec<span class="op">&amp;</span> internal_knots<span class="op">,</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> vec<span class="op">&amp;</span> boundary_knots <span class="op">=</span> vec<span class="op">());</span></span></code></pre></div>
-<p>The second non-default constructor is called when an unsigned integer representing the degree of freedom of the <em>complete spline basis functions</em> (different with <code>df</code> in the R interface) is specified. Then the number of internal knots is computed as <code>spline_df - 2</code> and the placement of internal knots uses quantiles of specified <code>x</code>.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. specified spline degree of freedom (df)</span></span>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. specified internal_knots</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>NaturalSpline<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;</span> x<span class="op">,</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> spline_df<span class="op">,</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> vec<span class="op">&amp;</span> internal_knots<span class="op">,</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> vec<span class="op">&amp;</span> boundary_knots <span class="op">=</span> vec<span class="op">());</span></span></code></pre></div>
+<p>The second non-default constructor is called when an unsigned integer representing the degree of freedom of the <em>complete spline basis functions</em> (different with <code>df</code> in the R interface) is specified. Then the number of internal knots is computed as <code>spline_df - 2</code> and the placement of internal knots uses quantiles of specified <code>x</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. specified spline degree of freedom (df)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>NaturalSpline<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;</span> x<span class="op">,</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> spline_df<span class="op">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">const</span> vec<span class="op">&amp;</span> boundary_knots <span class="op">=</span> vec<span class="op">());</span></span></code></pre></div>
 <p>The third non-default constructor is explicit and takes a pointer to a base class object. It can be useful when we want to create a new object using the same specification (<code>x</code>, <code>internal_knots</code>, <code>boundary_knots</code>, etc.) of an existing object.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. create a new object from a base class pointer</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>NaturalSpline<span class="op">(</span><span class="at">const</span> SplineBase<span class="op">*</span> pSplineBase<span class="op">);</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. create a new object from a base class pointer</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>NaturalSpline<span class="op">(</span><span class="at">const</span> SplineBase<span class="op">*</span> pSplineBase<span class="op">);</span></span></code></pre></div>
 </div>
 <div id="constructors-of-periodicmspline" class="section level3">
 <h3>Constructors of <code>PeriodicMSpline</code></h3>
@@ -279,34 +290,37 @@ div.csl-indent {
 <li><code>integral()</code> for integrals of spline basis (except for the <code>CSpline</code> class)</li>
 </ul>
 <p>The specific function signatures are as follows:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>mat basis<span class="op">(</span><span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>mat derivative<span class="op">(</span><span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> derivs <span class="op">=</span> <span class="dv">1</span><span class="op">,</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>mat integral<span class="op">(</span><span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>mat basis<span class="op">(</span><span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>mat derivative<span class="op">(</span><span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span> derivs <span class="op">=</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>mat integral<span class="op">(</span><span class="at">const</span> <span class="dt">bool</span> complete_basis <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span></code></pre></div>
 <p>Similarly, we may set and get the spline specifications through the following <em>setter</em> and <em>getter</em> functions, respectively.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// setter functions</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_x<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_x<span class="op">(</span><span class="at">const</span> <span class="dt">double</span><span class="op">);</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_internal_knots<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_boundary_knots<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_knot_sequence<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_degree<span class="op">(</span><span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span><span class="op">);</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_order<span class="op">(</span><span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span><span class="op">);</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">// getter functions</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>vec get_x<span class="op">();</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>vec get_internal_knots<span class="op">();</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>vec get_boundary_knots<span class="op">();</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>vec get_knot_sequence<span class="op">();</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> get_degree<span class="op">();</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> get_order<span class="op">();</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> get_spline_df<span class="op">();</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// setter functions</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_x<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_x<span class="op">(</span><span class="at">const</span> <span class="dt">double</span><span class="op">);</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_internal_knots<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_boundary_knots<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_knot_sequence<span class="op">(</span><span class="at">const</span> vec<span class="op">&amp;);</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_degree<span class="op">(</span><span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span><span class="op">);</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>SplineBase<span class="op">*</span> set_order<span class="op">(</span><span class="at">const</span> <span class="dt">unsigned</span> <span class="dt">int</span><span class="op">);</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">// getter functions</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>vec get_x<span class="op">();</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>vec get_internal_knots<span class="op">();</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>vec get_boundary_knots<span class="op">();</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>vec get_knot_sequence<span class="op">();</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> get_degree<span class="op">();</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> get_order<span class="op">();</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> get_spline_df<span class="op">();</span></span></code></pre></div>
 <p>The <em>setter</em> function returns a pointer to the current object so that the specification can be chained for convenience. For example,</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>vec x <span class="op">{</span> arma<span class="op">::</span>regspace<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dv">1</span><span class="op">)</span> <span class="op">};</span> <span class="co">// 0, 0.1, ..., 1</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>BSpline obj <span class="op">{</span> x<span class="op">,</span> <span class="dv">5</span> <span class="op">};</span>                <span class="co">// df = 5 (and degree = 3, by default)</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">// change degree to 2 and get basis</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>mat basis_mat <span class="op">{</span> obj<span class="op">.</span>set_degree<span class="op">(</span><span class="dv">2</span><span class="op">)-&gt;</span>basis<span class="op">()</span> <span class="op">};</span></span></code></pre></div>
-<p>There is no available <code>integral()</code> method for <code>CSpline</code> and no meaningful <code>degree</code> related methods for <code>NaturalSpline</code>.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>vec x <span class="op">{</span> arma<span class="op">::</span>regspace<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dv">1</span><span class="op">)</span> <span class="op">};</span> <span class="co">// 0, 0.1, ..., 1</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>BSpline obj <span class="op">{</span> x<span class="op">,</span> <span class="dv">5</span> <span class="op">};</span>                <span class="co">// df = 5 (and degree = 3, by default)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">// change degree to 2 and get basis</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>mat basis_mat <span class="op">{</span> obj<span class="op">.</span>set_degree<span class="op">(</span><span class="dv">2</span><span class="op">)-&gt;</span>basis<span class="op">()</span> <span class="op">};</span></span></code></pre></div>
+<p>The corresponding first derivatives and integrals of the basis functions can be obtained as follows:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>mat derivative_mat <span class="op">{</span> bs<span class="op">.</span>derivative<span class="op">()</span> <span class="op">};</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>mat integral_mat <span class="op">{</span> bs<span class="op">.</span>integral<span class="op">()</span> <span class="op">};</span></span></code></pre></div>
+<p>Notice that there is no available <code>integral()</code> method for <code>CSpline</code> and no meaningful <code>degree</code> related methods for <code>NaturalSpline</code>.</p>
 </div>
 </div>
 <div id="reference" class="section level2 unnumbered">
