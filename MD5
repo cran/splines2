@@ -1,6 +1,6 @@
-6506276c47860b8d02cdd4890b0d2aab *DESCRIPTION
+23da1a0f8ecf2d904b3b0c0aaead2bce *DESCRIPTION
 4de64c1f0536cc05e1804e61e8cdaff2 *NAMESPACE
-3a607f584040b0d3a919872e0ec0ce61 *NEWS.md
+323f3254f137051cd9cd0a1cc7ed9521 *NEWS.md
 0c3829ddcc5e15aeec8c4ab41f9d3950 *R/RcppExports.R
 00a709d64a62fbf3c18e3d607af9ab03 *R/bSpline.R
 e9479ce0494f18945541f7740b87525c *R/bernsteinPoly.R
@@ -17,15 +17,15 @@ b3bb67ae67fc865ff02375cb9c8142f1 *R/ibs.R
 7ab77716fbdfc98320a74a29bed71e86 *R/predict.R
 22ffe0d50b2a76789b95f877b5627585 *R/print.R
 89cae8747a2b0f509053408934d958a7 *R/splines2-package.R
-1c40eec0901798170378f83fa4cb0421 *README.md
+b11f482831738af05b467253541e832f *README.md
 662462e3047d312e74d26acc11c6702c *build/vignette.rds
-9c9e8c1ddf361932aa257695a4f6d1ca *inst/CITATION
+7ff313fb86924f963b10fc0730c0ee46 *inst/CITATION
 d0a1c887b7609a0659c758bb71a1fe36 *inst/bib/splines2.bib
 bc52adac5ba6b64ad7c892492e155647 *inst/doc/splines2-intro.R
 d144e53b1611e41b112a2aa2f2fabcb9 *inst/doc/splines2-intro.Rmd
-710a6d5ecd4471a3e96424108a827f78 *inst/doc/splines2-intro.html
+21145ec09425b72f811f775214af7027 *inst/doc/splines2-intro.html
 4913d389464b55b882b160bc45f13a88 *inst/doc/splines2-wi-rcpp.Rmd
-84652331a8ce3f8f91af0dbbbf71e3bd *inst/doc/splines2-wi-rcpp.html
+4d76ba4f502751ba9bf0eb1f06405f12 *inst/doc/splines2-wi-rcpp.html
 e57d0a2781194d86719d22ffe6e88124 *inst/examples/ex-bSpline.R
 9f344e6d2f57dd64b9e1a6dc6e5c5235 *inst/examples/ex-bernsteinPoly.R
 9a374f9d8254d31c506e696babfe94fe *inst/examples/ex-cSpline.R
@@ -45,7 +45,7 @@ acf0ac4244cb2ab173736ab53ad4e564 *inst/include/splines2Armadillo/BernsteinPoly.h
 8c5c2cee31bd6217ad5708e45731f369 *inst/include/splines2Armadillo/MSpline.h
 fff90b5761f2891109a1466b800cebec *inst/include/splines2Armadillo/NaturalSpline.h
 2aa9f4cee8c76723bc3b6ffe7cab2d77 *inst/include/splines2Armadillo/PeriodicMSpline.h
-e539c902dba3ec1a81c7ea9c69ef34de *inst/include/splines2Armadillo/SplineBase.h
+5510e7e0403a323104ddf1aa86aa52ef *inst/include/splines2Armadillo/SplineBase.h
 660f4aaf0c20bbb9f66a2c4fbda273de *inst/include/splines2Armadillo/common.h
 5af11efc571186a0c2b3fa4b6bfeea9d *inst/include/splines2Armadillo/utils.h
 1ec75158f73fe49661ec54f7f539dc5c *inst/rcpp-tests/test-BSpline.R

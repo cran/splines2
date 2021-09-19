@@ -19,6 +19,7 @@
 #define SPLINE2_SPLINE_BASE_H
 
 #include <stdexcept>
+#include <algorithm>
 
 #include "common.h"
 #include "utils.h"
@@ -137,14 +138,14 @@ namespace splines2 {
             )
         {
             rvec out { arma::zeros(internal_knots.n_elem + 2 * order) };
-            for (size_t i {0}; i < out.n_elem; ++i) {
-                if (i < order) {
-                    out(i) = boundary_knots(0);
-                } else if (i < out.n_elem - order) {
-                    out(i) = internal_knots(i - order);
-                } else {
-                    out(i) = boundary_knots(1);
-                }
+            rvec::iterator it { out.begin() }, it_end { out.end() - 1 };
+            rvec::const_iterator ii { internal_knots.begin() };
+            for (size_t i {0}; i < order; ++i, ++it, --it_end) {
+                *it = boundary_knots(0);
+                *it_end = boundary_knots(1);
+            }
+            for (++it_end; it != it_end; ++it, ++ii) {
+                *it = *ii;
             }
             return out;
         }
@@ -239,18 +240,13 @@ namespace splines2 {
                 return;
             }
             x_index_ = arma::zeros<arma::uvec>(x_.n_elem);
-            for (size_t i {0}; i < x_.n_elem; ++i) {
-                size_t left_index {0};
-                size_t right_index { internal_knots_.n_elem };
-                while (right_index > left_index) {
-                    size_t cur_index { (left_index + right_index) / 2 };
-                    if (x_(i) < internal_knots_(cur_index)) {
-                        right_index = cur_index;
-                    } else {
-                        left_index = cur_index + 1;
-                    }
-                }
-                x_index_(i) = left_index;
+            arma::uvec::iterator xi { x_index_.begin() };
+            arma::vec::iterator it { x_.begin() }, pos, ie { x_.end() },
+                knots_begin { internal_knots_.begin() },
+                knots_end { internal_knots_.end() };
+            for (; it != ie; ++it, ++xi) {
+                pos = std::upper_bound(knots_begin, knots_end, *it);
+                *xi = std::distance(knots_begin, pos);
             }
             is_x_index_latest_ = true;
         }

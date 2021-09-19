@@ -1,3 +1,12 @@
+# splines2 0.4.5
+
+## Minor changes
+
+* Improved the computational efficiency of finding the knot intervals for `x`
+  (by replacing the naive binary search implementation with `std::upper_bound`
+  and `std::distance`).
+
+
 # splines2 0.4.4
 
 ## New features
@@ -11,8 +20,8 @@
 
 ## Minor changes
 
-* Made the internal checking procedure more strict to throw error if any
-  internal knots is placed at or outside boundary:
+* Made the internal checking procedure more strict to throw an error if any
+  internal knots are placed at or outside boundary:
   [issue 5](https://github.com/wenjie2wang/splines2/issues/5).
 
 ## Bug fixes
