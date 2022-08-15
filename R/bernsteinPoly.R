@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2021
+## Copyright (C) 2016-2022
 ##
 ## This file is part of the R package splines2.
 ##
@@ -88,7 +88,7 @@ bernsteinPoly <- function(x, degree = 3, intercept = FALSE,
         row.names(out) <- name_x
     }
     ## add class
-    class(out) <- c("matrix", "bernsteinPoly")
+    class(out) <- c("matrix", "bernsteinPoly", "splines2")
     ## return
     out
 }

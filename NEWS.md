@@ -1,3 +1,16 @@
+# splines2 0.4.6
+
+## New features
+
+* Added `update()` methods to produce new spline basis functions based on the
+  given object with specified updates in terms of `degree` and `knots`, etc.
+
+## Minor changes
+
+* Appended a new class named `splines2` to the output matrices to simplify some
+  common S3 methods.
+
+
 # splines2 0.4.5
 
 ## Minor changes

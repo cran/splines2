@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2021
+## Copyright (C) 2016-2022
 ##
 ## This file is part of the R package splines2.
 ##
@@ -73,7 +73,7 @@
 ##' Ramsay, J. O. (1988). Monotone regression splines in action.
 ##' \emph{Statistical science}, 3(4), 425--441.
 ##'
-##' Piegl, L., & Tiller, W. (1997). \emph{The NURBS book}. Springer Science \&
+##' Piegl, L., & Tiller, W. (1997). \emph{The NURBS book}. Springer Science &
 ##' Business Media.
 ##'
 ##' @example inst/examples/ex-mSpline.R
@@ -166,6 +166,6 @@ mSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
         row.names(out) <- name_x
     }
     ## add class
-    class(out) <- c("matrix", "mSpline")
+    class(out) <- c("matrix", "mSpline", "splines2")
     out
 }

@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2021
+## Copyright (C) 2016-2022
 ##
 ## This file is part of the R package splines2.
 ##
@@ -16,49 +16,7 @@
 ##
 
 ##' @export
-print.bSpline2 <- function(x, ...) {
-    print.default(tidyAttr(x, ...))
-    invisible(x)
-}
-
-##' @export
-print.ibs <- function(x, ...) {
-    print.default(tidyAttr(x, ...))
-    invisible(x)
-}
-
-##' @export
-print.dbs <- function(x, ...) {
-    print.default(tidyAttr(x, ...))
-    invisible(x)
-}
-
-##' @export
-print.mSpline <- function(x, ...) {
-    print.default(tidyAttr(x, ...))
-    invisible(x)
-}
-
-##' @export
-print.iSpline <- function(x, ...) {
-    print.default(tidyAttr(x, ...))
-    invisible(x)
-}
-
-##' @export
-print.cSpline <- function(x, ...) {
-    print.default(tidyAttr(x, ...))
-    invisible(x)
-}
-
-##' @export
-print.bernsteinPoly <- function(x, ...) {
-    print.default(tidyAttr(x, ...))
-    invisible(x)
-}
-
-##' @export
-print.naturalSpline <- function(x, ...) {
+print.splines2 <- function(x, ...) {
     print.default(tidyAttr(x, ...))
     invisible(x)
 }

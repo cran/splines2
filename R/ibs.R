@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2021
+## Copyright (C) 2016-2022
 ##
 ## This file is part of the R package splines2.
 ##
@@ -96,7 +96,7 @@ ibs <- function(x, df = NULL, knots = NULL, degree = 3,
         row.names(out) <- name_x
     }
     ## add class
-    class(out) <- c("matrix", "ibs")
+    class(out) <- c("matrix", "ibs", "splines2")
     ## return
     out
 }

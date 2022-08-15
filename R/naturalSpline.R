@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2021
+## Copyright (C) 2016-2022
 ##
 ## This file is part of the R package splines2.
 ##
@@ -119,6 +119,6 @@ naturalSpline <- function(x, df = NULL, knots = NULL,
         row.names(out) <- name_x
     }
     ## add class
-    class(out) <- c("matrix", "naturalSpline")
+    class(out) <- c("matrix", "naturalSpline", "splines2")
     out
 }
