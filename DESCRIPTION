@@ -1,6 +1,6 @@
 Package: splines2
 Title: Regression Spline Functions and Classes
-Version: 0.4.7
+Version: 0.4.8
 Authors@R: c(
     person(given = "Wenjie", family = "Wang",
            email = "wang@wwenjie.org",
@@ -16,9 +16,9 @@ Description: Constructs basis matrix of B-splines, M-splines,
     of given order by close-form recursive formulas.
     It also contains a C++ head-only library integrated with Rcpp.
     See Wang and Yan (2021) <doi:10.6339/21-JDS1020> for details.
-Imports: Rcpp, stats
+Imports: stats, Rcpp
 LinkingTo: Rcpp, RcppArmadillo
-Suggests: knitr, rmarkdown, tinytest
+Suggests: knitr, rmarkdown, tinytest, RcppArmadillo
 Depends: R (>= 3.2.3)
 VignetteBuilder: knitr
 License: GPL (>= 3)
@@ -28,9 +28,9 @@ BugReports: https://github.com/wenjie2wang/splines2/issues
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 NeedsCompilation: yes
-Packaged: 2023-01-14 02:25:26 UTC; wenjie
+Packaged: 2023-03-26 15:40:16 UTC; wenjie
 Author: Wenjie Wang [aut, cre] (<https://orcid.org/0000-0003-0363-3180>),
   Jun Yan [aut] (<https://orcid.org/0000-0003-4401-7296>)
 Maintainer: Wenjie Wang <wang@wwenjie.org>
 Repository: CRAN
-Date/Publication: 2023-01-14 09:30:03 UTC
+Date/Publication: 2023-03-26 17:40:02 UTC
