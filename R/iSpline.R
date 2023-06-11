@@ -21,7 +21,8 @@
 ##' spline or the corresponding derivatives of given order.
 ##'
 ##' It is an implementation of the closed-form I-spline basis based on the
-##' recursion formula given by Ramsay (1988).
+##' recursion formula given by Ramsay (1988).  The function \code{isp()} is an
+##' alias of to encourage the use in a model formula.
 ##'
 ##' @inheritParams bSpline
 ##'
@@ -36,7 +37,12 @@
 ##' @param derivs A nonnegative integer specifying the order of derivatives of
 ##'     I-splines.
 ##'
-##' @inherit bSpline return
+##' @return A numeric matrix of \code{length(x)} rows and \code{df} columns if
+##'     \code{df} is specified.  If \code{knots} are specified instead, the
+##'     output matrix will consist of \code{length(knots) + degree +
+##'     as.integer(intercept)} columns.  Attributes that correspond to the
+##'     arguments specified are returned for usage of other functions in this
+##'     package.
 ##'
 ##' @references
 ##' Ramsay, J. O. (1988). Monotone regression splines in action.
@@ -51,7 +57,9 @@
 ##' @export
 iSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
                     intercept = TRUE, Boundary.knots = NULL,
-                    derivs = 0L, ...)
+                    derivs = 0L,
+                    warn.outside = getOption("splines2.warn.outside", TRUE),
+                    ...)
 {
     ## check inputs
     if ((derivs <- as.integer(derivs)) < 0) {
@@ -64,7 +72,9 @@ iSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
                        degree = degree,
                        intercept = intercept,
                        Boundary.knots = Boundary.knots,
-                       derivs = derivs - 1L, ...))
+                       periodic = FALSE,
+                       derivs = derivs - 1L,
+                       integral = FALSE))
     }
     ## else I-Spline basis
     if ((degree <- as.integer(degree)) < 0)
@@ -103,7 +113,7 @@ iSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
     )
     ## throw warning if any x is outside of the boundary
     b_knots <- attr(out, "Boundary.knots")
-    if (any((xx < b_knots[1L]) | (xx > b_knots[2L]))) {
+    if (warn.outside && any((xx < b_knots[1L]) | (xx > b_knots[2L]))) {
         warning(wrapMessages(
             "Some 'x' values beyond boundary knots",
             "may cause ill-conditioned basis functions."
@@ -125,6 +135,10 @@ iSpline <- function(x, df = NULL, knots = NULL, degree = 3L,
         row.names(out) <- name_x
     }
     ## add class
-    class(out) <- c("matrix", "iSpline", "splines2")
+    class(out) <- c("ISpline", "splines2", "matrix")
     out
 }
+
+##' @rdname iSpline
+##' @export
+isp <- iSpline

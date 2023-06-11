@@ -15,28 +15,29 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ##
 
-##' Evaluate Spline Basis Functions at Specified Points
+##' Compute Spline Function for Given Coefficients
 ##'
-##' This function evaluates the given spline basis functions at the specified
-##' \code{x}.
-##'
-##' These are methods for the generic function \code{predict} for objects
-##' inheriting from class \code{bSpline2}, \code{ibs}, \code{mSpline},
-##' \code{iSpline}, \code{cSpline}, \code{naturalSpline}, or
-##' \code{bernsteinPoly}.  If \code{newx} is not given, the function returns the
-##' input object.
+##' Returns the spline function (with the specified coefficients) or evaluate
+##' the basis functions at the specified \code{x} if the coefficients are not
+##' specified.
 ##'
 ##' @name predict
-##' @param object Objects of class \code{bSpline2}, \code{ibs}, \code{mSpline},
-##'     \code{iSpline}, \code{cSpline}, \code{bernsteinPoly} or
-##'     \code{naturalSpline} with attributes describing \code{knots},
-##'     \code{degree}, etc.
-##' @param newx The \code{x} values at which evaluations are required.
-##' @param ... Optional arguments that are not used.
+##' @param object Spline objects produced by the \code{splines2} package.
+##' @param newx The \code{x} values at which evaluations are required.  If it is
+##'     \code{NULL} (by default), the original \code{x} used to create the
+##'     spline object will be used.
+##' @param coef A numeric vector specifying the coefficients of the spline basis
+##'     functions.  If it is \code{NULL} (by default), the spline basis
+##'     functions will be returned.  Otherwise, the resulting spline function
+##'     will be returned.
+##' @param ... Other options passed to the corresponding function that
+##'     constructs the input \code{object}.  For example, the additional options
+##'     will be passed to \code{bSpline()} for a \code{BSpline} object.
 ##'
-##' @return
-##' An object just like the \code{object} input, except evaluated at
-##' the new values of \code{x}.
+##' @return The function returns the spline basis functions with the new values
+##'     of \code{x} if \code{coef} is not specified.  Otherwise, the function
+##'     returns the resulting spline function (or its derivative if
+##'     \code{derivs} is specified as a positive integer through \code{...}).
 ##'
 ##' @example inst/examples/ex-predict.R
 ##'
@@ -45,122 +46,112 @@ NULL
 
 
 ## the helper function for predict
-helper_predict <- function(object, newx, fun, key_attr)
+helper_predict <- function(object, newx = NULL, coef = NULL,
+                           ..., .FUN)
 {
-    if (missing(newx))
-        return(object)
-    ## checks if key attributes still exist
-    check_attr(object, key_attr)
-    do.call(fun, c(list(x = newx), pred_attr(object)))
+    res <- if (is.null(newx)) {
+               update(object, ...)
+           } else {
+               update(object, x = newx, ...)
+           }
+    if (is.null(coef)) {
+        return(res)
+    }
+    as.numeric(res %*% coef)
 }
 
 
 ##' @rdname predict
 ##' @export
-predict.bSpline2 <- function(object, newx, ...)
+predict.BSpline <- function(object, newx = NULL, coef = NULL, ...)
 {
     helper_predict(
-        object,
-        newx,
-        bSpline,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs", "integral")
+        object = object,
+        newx = newx,
+        coef = coef,
+        ...,
+        .FUN = bSpline
+    )
+}
+
+##' @rdname predict
+##' @export
+predict.MSpline <- function(object, newx = NULL, coef = NULL, ...)
+{
+    helper_predict(
+        object = object,
+        newx = newx,
+        coef = coef,
+        ...,
+        .FUN = mSpline
     )
 }
 
 
 ##' @rdname predict
 ##' @export
-predict.dbs <- function(object, newx, ...)
+predict.ISpline <- function(object, newx = NULL, coef = NULL, ...)
 {
     helper_predict(
-        object,
-        newx,
-        dbs,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs")
+        object = object,
+        newx = newx,
+        coef = coef,
+        ...,
+        .FUN = iSpline
     )
 }
 
 
 ##' @rdname predict
 ##' @export
-predict.ibs <- function(object, newx, ...)
+predict.CSpline <- function(object, newx = NULL, coef = NULL, ...)
 {
     helper_predict(
-        object,
-        newx,
-        ibs,
-        key_attr = c("x", "degree", "knots", "Boundary.knots", "intercept")
+        object = object,
+        newx = newx,
+        coef = coef,
+        ...,
+        .FUN = cSpline
     )
 }
 
 
 ##' @rdname predict
 ##' @export
-predict.mSpline <- function(object, newx, ...)
+predict.BernsteinPoly <- function(object, newx = NULL, coef = NULL, ...)
 {
     helper_predict(
-        object,
-        newx,
-        mSpline,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs", "integral", "periodic")
+        object = object,
+        newx = newx,
+        coef = coef,
+        ...,
+        .FUN = bernsteinPoly
     )
 }
 
 
 ##' @rdname predict
 ##' @export
-predict.iSpline <- function(object, newx, ...)
+predict.NaturalSpline <- function(object, newx = NULL, coef = NULL, ...)
 {
     helper_predict(
-        object,
-        newx,
-        iSpline,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs")
+        object = object,
+        newx = newx,
+        coef = coef,
+        ...,
+        .FUN = naturalSpline
     )
 }
 
-
 ##' @rdname predict
 ##' @export
-predict.cSpline <- function(object, newx, ...)
+predict.NaturalSplineK <- function(object, newx = NULL, coef = NULL, ...)
 {
     helper_predict(
-        object,
-        newx,
-        cSpline,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs", "scale")
-    )
-}
-
-
-##' @rdname predict
-##' @export
-predict.bernsteinPoly <- function(object, newx, ...)
-{
-    helper_predict(
-        object,
-        newx,
-        bernsteinPoly,
-        key_attr = c("x", "degree", "Boundary.knots",
-                     "intercept", "derivs", "integral")
-    )
-}
-
-
-##' @rdname predict
-##' @export
-predict.naturalSpline <- function(object, newx, ...)
-{
-    helper_predict(
-        object,
-        newx,
-        naturalSpline,
-        key_attr = c("x", "knots", "Boundary.knots",
-                     "intercept", "derivs", "integral")
+        object = object,
+        newx = newx,
+        coef = coef,
+        ...,
+        .FUN = nsk
     )
 }

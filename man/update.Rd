@@ -2,37 +2,31 @@
 % Please edit documentation in R/update.R
 \name{update}
 \alias{update}
-\alias{update.bSpline2}
-\alias{update.dbs}
-\alias{update.ibs}
-\alias{update.mSpline}
-\alias{update.iSpline}
-\alias{update.cSpline}
-\alias{update.bernsteinPoly}
-\alias{update.naturalSpline}
+\alias{update.BSpline}
+\alias{update.MSpline}
+\alias{update.ISpline}
+\alias{update.CSpline}
+\alias{update.BernsteinPoly}
+\alias{update.NaturalSpline}
+\alias{update.NaturalSplineK}
 \title{Update Spline Basis Functions}
 \usage{
-\method{update}{bSpline2}(object, ...)
+\method{update}{BSpline}(object, ...)
 
-\method{update}{dbs}(object, ...)
+\method{update}{MSpline}(object, ...)
 
-\method{update}{ibs}(object, ...)
+\method{update}{ISpline}(object, ...)
 
-\method{update}{mSpline}(object, ...)
+\method{update}{CSpline}(object, ...)
 
-\method{update}{iSpline}(object, ...)
+\method{update}{BernsteinPoly}(object, ...)
 
-\method{update}{cSpline}(object, ...)
+\method{update}{NaturalSpline}(object, ...)
 
-\method{update}{bernsteinPoly}(object, ...)
-
-\method{update}{naturalSpline}(object, ...)
+\method{update}{NaturalSplineK}(object, ...)
 }
 \arguments{
-\item{object}{Objects of class \code{bSpline2}, \code{ibs}, \code{mSpline},
-\code{iSpline}, \code{cSpline}, \code{bernsteinPoly} or
-\code{naturalSpline} with attributes describing \code{knots},
-\code{degree}, etc.}
+\item{object}{Spline objects produced by the \code{splines2} package.}
 
 \item{...}{Other arguments passed to the corresponing constructor function.}
 }

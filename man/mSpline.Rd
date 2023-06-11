@@ -2,6 +2,7 @@
 % Please edit documentation in R/mSpline.R
 \name{mSpline}
 \alias{mSpline}
+\alias{msp}
 \title{M-Spline Basis for Polynomial Splines}
 \usage{
 mSpline(
@@ -14,6 +15,21 @@ mSpline(
   periodic = FALSE,
   derivs = 0L,
   integral = FALSE,
+  warn.outside = getOption("splines2.warn.outside", TRUE),
+  ...
+)
+
+msp(
+  x,
+  df = NULL,
+  knots = NULL,
+  degree = 3L,
+  intercept = FALSE,
+  Boundary.knots = NULL,
+  periodic = FALSE,
+  derivs = 0L,
+  integral = FALSE,
+  warn.outside = getOption("splines2.warn.outside", TRUE),
   ...
 )
 }
@@ -22,12 +38,11 @@ mSpline(
 returned as they are.}
 
 \item{df}{Degree of freedom that equals to the column number of the returned
-matrix.  One can specify \code{df} rather than \code{knots}.  For
-M-splines, the function chooses \code{df - degree -
-as.integer(intercept)} internal knots at suitable quantiles of \code{x}
-ignoring missing values and those \code{x} outside of the boundary.  For
-periodic M-spline (\code{periodic = TRUE}), \code{df -
-as.integer(intercept)} internal knots will be chosen at suitable
+matrix.  One can specify \code{df} rather than \code{knots}, then the
+function chooses \code{df - degree - as.integer(intercept)} internal
+knots at suitable quantiles of \code{x} ignoring missing values and
+those \code{x} outside of the boundary.  For periodic splines, \code{df
+- as.integer(intercept)} internal knots will be chosen at suitable
 quantiles of \code{x} relative to the beginning of the cyclic intervals
 they belong to (see Examples) and the number of internal knots must be
 greater or equal to the specified \code{degree - 1}.  If internal knots
@@ -36,9 +51,8 @@ are specified via \code{knots}, the specified \code{df} will be ignored.}
 \item{knots}{The internal breakpoints that define the splines.  The default
 is \code{NULL}, which results in a basis for ordinary polynomial
 regression.  Typical values are the mean or median for one knot,
-quantiles for more knots.  For periodic splines (\code{periodic =
-TRUE}), the number of knots must be greater or equal to the specified
-\code{degree - 1}.}
+quantiles for more knots.  For periodic splines, the number of knots
+must be greater or equal to the specified \code{degree - 1}.}
 
 \item{degree}{A nonnegative integer specifying the degree of the piecewise
 polynomial. The default value is \code{3} for cubic splines. Zero degree
@@ -51,20 +65,24 @@ Otherwise, the first basis will be excluded from the output.}
 default, they are the range of \code{x} excluding \code{NA}.  If both
 \code{knots} and \code{Boundary.knots} are supplied, the basis
 parameters do not depend on \code{x}. Data can extend beyond
-\code{Boundary.knots}.  For periodic splines (\code{periodic = TRUE}),
-the specified boundary knots define the cyclic interval.}
+\code{Boundary.knots}.  For periodic splines, the specified bounary
+knots define the cyclic interval.}
 
 \item{periodic}{A logical value.  If \code{TRUE}, the periodic splines will
-be returned instead of regular M-splines.  The default value is
-\code{FALSE}.}
+be returned.  The default value is \code{FALSE}.}
 
 \item{derivs}{A nonnegative integer specifying the order of derivatives of
-M-splines. The default value is \code{0L} for M-spline basis functions.}
+splines basis function.  The default value is \code{0}.}
 
 \item{integral}{A logical value.  If \code{TRUE}, the corresponding
 integrals of spline basis functions will be returned.  The default value
-is \code{FALSE}.  For periodic splines, the integral of each basis is
+is \code{FALSE}. For periodic splines, the integral of each basis is
 integrated from the left boundary knot.}
+
+\item{warn.outside}{A logical value indicating if a warning should be thrown
+out when any \code{x} is outside the boundary.  This option can also be
+set through \code{options("splines2.warn.outside")} after the package is
+loaded.}
 
 \item{...}{Optional arguments that are not used.}
 }
@@ -86,7 +104,11 @@ This function contains an implementation of the closed-form M-spline basis
 based on the recursion formula given by Ramsay (1988) or periodic M-spline
 basis following the procedure producing periodic B-splines given in Piegl
 and Tiller (1997).  For monotone regression, one can use I-splines (see
-\code{\link{iSpline}}) instead of M-splines.
+\code{\link{iSpline}}) instead of M-splines.  For shape-restricted
+regression, see Wang and Yan (2021) for examples.
+
+The function \code{msp()} is an alias of to encourage the use in a model
+formula.
 }
 \examples{
 library(splines2)
@@ -97,8 +119,7 @@ knots <- c(0.3, 0.5, 0.6)
 msMat <- mSpline(x, knots = knots, degree = 2, intercept = TRUE)
 
 op <- par(mar = c(2.5, 2.5, 0.2, 0.1), mgp = c(1.5, 0.5, 0))
-matplot(x, msMat, type = "l", ylab = "y")
-abline(v = knots, lty = 2, col = "gray")
+plot(msMat, mark_knots = "internal")
 
 ## derivatives of M-splines
 dmsMat <- mSpline(x, knots = knots, degree = 2,
@@ -123,16 +144,12 @@ dMat1 <- mSpline(x, knots = knots, degree = 3, intercept = TRUE,
 dMat2 <- deriv(pMat)
 
 par(mfrow = c(2, 2))
-matplot(x, pMat, type = "l", ylab = "Periodic Basis")
-abline(v = seq.int(0, max(x)), lty = 2, col = "grey")
-matplot(x, iMat, type = "l", ylab = "Integrals from 0")
+plot(pMat, ylab = "Periodic Basis", mark_knots = "boundary")
+plot(iMat, ylab = "Integrals from 0")
 abline(v = seq.int(0, max(x)), h = seq.int(0, max(x)), lty = 2, col = "grey")
-matplot(x, dMat1, type = "l", ylab = "1st derivatives by 'derivs=1'")
-abline(v = seq.int(0, max(x)), lty = 2, col = "grey")
-matplot(x, dMat2, type = "l", ylab = "1st derivatives by 'deriv()'")
-abline(v = seq.int(0, max(x)), lty = 2, col = "grey")
-## reset to previous plotting settings
-par(op)
+plot(dMat1, ylab = "1st derivatives by 'derivs=1'", mark_knots = "boundary")
+plot(dMat2, ylab = "1st derivatives by 'deriv()'", mark_knots = "boundary")
+par(op) # reset to previous plotting settings
 
 ### default placement of internal knots for periodic splines
 default_knots <- function(x, df, intercept = FALSE,
@@ -147,12 +164,13 @@ df <- 8
 degree <- 3
 intercept <- TRUE
 internal_knots <- default_knots(x, df, intercept)
+
 ## 1. specify df
-spline_basis1 =  splines2::mSpline(x, degree = degree, df = df,
-                                   periodic = TRUE, intercept = intercept)
+spline_basis1 =  mSpline(x, degree = degree, df = df,
+                         periodic = TRUE, intercept = intercept)
 ## 2. specify knots
-spline_basis2 =  splines2::mSpline(x, degree = degree, knots = internal_knots,
-                                   periodic = TRUE, intercept = intercept)
+spline_basis2 =  mSpline(x, degree = degree, knots = internal_knots,
+                         periodic = TRUE, intercept = intercept)
 
 all.equal(internal_knots, knots(spline_basis1))
 all.equal(spline_basis1, spline_basis2)
@@ -163,6 +181,9 @@ Ramsay, J. O. (1988). Monotone regression splines in action.
 
 Piegl, L., & Tiller, W. (1997). \emph{The NURBS book}. Springer Science &
 Business Media.
+
+Wang, W., & Yan, J. (2021). \emph{Shape-restricted regression splines with R
+package splines2}. Journal of Data Science, 19(3),498--517.
 }
 \seealso{
 \code{\link{bSpline}} for B-splines;

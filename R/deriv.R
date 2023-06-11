@@ -50,11 +50,16 @@ NULL
 
 ##' @rdname deriv
 ##' @export
-deriv.bSpline2 <- function(expr, derivs = 1L, ...)
+deriv.BSpline <- function(expr, derivs = 1L, ...)
 {
+    ## quick check on derivs
+    derivs <- as.integer(derivs)
+    if (derivs < 1L) {
+        stop("The 'derivs' has to be a positive integer.")
+    }
     ## checks if key attributes still exist
     check_attr(expr, c("x", "degree", "knots", "Boundary.knots", "intercept",
-                       "derivs", "integral"))
+                       "periodic", "derivs", "integral"))
     attr(expr, "derivs") <- attr(expr, "derivs") + derivs
     do.call(bSpline, attributes(expr))
 }
@@ -62,19 +67,7 @@ deriv.bSpline2 <- function(expr, derivs = 1L, ...)
 
 ##' @rdname deriv
 ##' @export
-deriv.dbs <- function(expr, derivs = 1L, ...)
-{
-    ## checks if key attributes still exist
-    check_attr(expr, c("x", "degree", "derivs",
-                       "knots", "Boundary.knots", "intercept"))
-    attr(expr, "derivs") <- attr(expr, "derivs") + derivs
-    do.call(dbs, attributes(expr))
-}
-
-
-##' @rdname deriv
-##' @export
-deriv.ibs <- function(expr, derivs = 1L, ...)
+deriv.MSpline <- function(expr, derivs = 1L, ...)
 {
     ## quick check on derivs
     derivs <- as.integer(derivs)
@@ -82,19 +75,8 @@ deriv.ibs <- function(expr, derivs = 1L, ...)
         stop("The 'derivs' has to be a positive integer.")
     }
     ## checks if key attributes still exist
-    check_attr(expr, c("x", "degree", "knots", "Boundary.knots", "intercept"))
-    attr(expr, "derivs") <- derivs - 1L
-    do.call(bSpline, attributes(expr))
-}
-
-
-##' @rdname deriv
-##' @export
-deriv.mSpline <- function(expr, derivs = 1L, ...)
-{
-    ## checks if key attributes still exist
-    check_attr(expr, c("x", "degree", "derivs", "integral", "periodic",
-                       "knots", "Boundary.knots", "intercept"))
+    check_attr(expr, c("x", "degree", "knots", "Boundary.knots", "intercept",
+                       "periodic", "derivs", "integral"))
     attr(expr, "derivs") <- attr(expr, "derivs") + derivs
     do.call(mSpline, attributes(expr))
 }
@@ -102,7 +84,7 @@ deriv.mSpline <- function(expr, derivs = 1L, ...)
 
 ##' @rdname deriv
 ##' @export
-deriv.iSpline <- function(expr, derivs = 1L, ...)
+deriv.ISpline <- function(expr, derivs = 1L, ...)
 {
     ## quick check on derivs
     derivs <- as.integer(derivs)
@@ -119,7 +101,7 @@ deriv.iSpline <- function(expr, derivs = 1L, ...)
 
 ##' @rdname deriv
 ##' @export
-deriv.cSpline <- function(expr, derivs = 1L, ...)
+deriv.CSpline <- function(expr, derivs = 1L, ...)
 {
     ## quick check on derivs
     derivs <- as.integer(derivs)
@@ -151,8 +133,13 @@ deriv.cSpline <- function(expr, derivs = 1L, ...)
 
 ##' @rdname deriv
 ##' @export
-deriv.bernsteinPoly <- function(expr, derivs = 1L, ...)
+deriv.BernsteinPoly <- function(expr, derivs = 1L, ...)
 {
+    ## quick check on derivs
+    derivs <- as.integer(derivs)
+    if (derivs < 1L) {
+        stop("The 'derivs' has to be a positive integer.")
+    }
     ## checks if key attributes still exist
     check_attr(expr, c("x", "degree", "derivs", "integral",
                        "Boundary.knots", "intercept"))
@@ -163,11 +150,32 @@ deriv.bernsteinPoly <- function(expr, derivs = 1L, ...)
 
 ##' @rdname deriv
 ##' @export
-deriv.naturalSpline <- function(expr, derivs = 1L, ...)
+deriv.NaturalSpline <- function(expr, derivs = 1L, ...)
 {
+    ## quick check on derivs
+    derivs <- as.integer(derivs)
+    if (derivs < 1L) {
+        stop("The 'derivs' has to be a positive integer.")
+    }
     ## checks if key attributes still exist
-    check_attr(expr, c("x", "derivs", "integral",
-                       "knots", "Boundary.knots", "intercept"))
+    check_attr(expr, c("x", "derivs", "integral", "knots",
+                       "Boundary.knots", "trim",  "intercept"))
     attr(expr, "derivs") <- attr(expr, "derivs") + derivs
     do.call(naturalSpline, attributes(expr))
+}
+
+##' @rdname deriv
+##' @export
+deriv.NaturalSplineK <- function(expr, derivs = 1L, ...)
+{
+    ## quick check on derivs
+    derivs <- as.integer(derivs)
+    if (derivs < 1L) {
+        stop("The 'derivs' has to be a positive integer.")
+    }
+    ## checks if key attributes still exist
+    check_attr(expr, c("x", "derivs", "integral", "knots",
+                       "Boundary.knots", "trim",  "intercept"))
+    attr(expr, "derivs") <- attr(expr, "derivs") + derivs
+    do.call(nsk, attributes(expr))
 }

@@ -36,128 +36,118 @@ NULL
 
 
 ## the helper function for update
-helper_update <- function(object, ..., fun, key_attr)
+helper_update <- function(object, ..., .FUN, .KEY_ATTR)
 {
     dot_list <- list(...)
     if (length(dot_list) == 0L) {
         return(object)
     }
-    check_attr(object, key_attr)
-    if (is.null(dot_list$df)) {
-        call_list <- modify_list(attributes(object), dot_list)
-    } else {
-        call_list <- modify_list(pred_attr(object, except = "knots"), dot_list)
+    check_attr(object, .KEY_ATTR)
+    exclude_attrs <- c("class", "dimnames")
+    if (! is.null(dot_list$df)) {
+        exclude_attrs <- c(exclude_attrs, "knots")
     }
-    do.call(fun, call_list)
+    if (! is.null(dot_list$trim)) {
+        exclude_attrs <- c(exclude_attrs, "Boundary.knots")
+    }
+    call_attr <- pred_attr(object, except = exclude_attrs)
+    call_list <- modify_list(call_attr, dot_list)
+    do.call(.FUN, call_list)
 }
 
 
 ##' @rdname update
 ##' @export
-update.bSpline2 <- function(object, ...)
+update.BSpline <- function(object, ...)
 {
     helper_update(
         object,
         ...,
-        fun = bSpline,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs", "integral")
+        .FUN = bSpline,
+        .KEY_ATTR = c("x", "degree", "knots", "Boundary.knots",
+                      "intercept", "derivs", "integral", "periodic")
     )
 }
 
 
 ##' @rdname update
 ##' @export
-update.dbs <- function(object, ...)
+update.MSpline <- function(object, ...)
 {
     helper_update(
         object,
         ...,
-        fun = dbs,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs")
+        .FUN = mSpline,
+        .KEY_ATTR = c("x", "degree", "knots", "Boundary.knots",
+                      "intercept", "derivs", "integral", "periodic")
     )
 }
 
 
 ##' @rdname update
 ##' @export
-update.ibs <- function(object, ...)
+update.ISpline <- function(object, ...)
 {
     helper_update(
         object,
         ...,
-        fun = ibs,
-        key_attr = c("x", "degree", "knots", "Boundary.knots", "intercept")
+        .FUN = iSpline,
+        .KEY_ATTR = c("x", "degree", "knots", "Boundary.knots",
+                      "intercept", "derivs")
     )
 }
 
 
 ##' @rdname update
 ##' @export
-update.mSpline <- function(object, ...)
+update.CSpline <- function(object, ...)
 {
     helper_update(
         object,
         ...,
-        fun = mSpline,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs", "integral", "periodic")
+        .FUN = cSpline,
+        .KEY_ATTR = c("x", "degree", "knots", "Boundary.knots",
+                      "intercept", "derivs", "scale")
     )
 }
 
 
 ##' @rdname update
 ##' @export
-update.iSpline <- function(object, ...)
+update.BernsteinPoly <- function(object, ...)
 {
     helper_update(
         object,
         ...,
-        fun = iSpline,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs")
+        .FUN = bernsteinPoly,
+        .KEY_ATTR = c("x", "degree", "Boundary.knots",
+                      "intercept", "derivs", "integral")
     )
 }
 
 
 ##' @rdname update
 ##' @export
-update.cSpline <- function(object, ...)
+update.NaturalSpline <- function(object, ...)
 {
     helper_update(
         object,
         ...,
-        fun = cSpline,
-        key_attr = c("x", "degree", "knots", "Boundary.knots",
-                     "intercept", "derivs", "scale")
+        .FUN = naturalSpline,
+        .KEY_ATTR = c("x", "knots", "Boundary.knots", "trim",
+                      "intercept", "derivs", "integral")
     )
 }
 
-
 ##' @rdname update
 ##' @export
-update.bernsteinPoly <- function(object, ...)
+update.NaturalSplineK <- function(object, ...)
 {
     helper_update(
         object,
         ...,
-        fun = bernsteinPoly,
-        key_attr = c("x", "degree", "Boundary.knots",
-                     "intercept", "derivs", "integral")
-    )
-}
-
-
-##' @rdname update
-##' @export
-update.naturalSpline <- function(object, ...)
-{
-    helper_update(
-        object,
-        ...,
-        fun = naturalSpline,
-        key_attr = c("x", "knots", "Boundary.knots",
-                     "intercept", "derivs", "integral")
+        .FUN = nsk,
+        .KEY_ATTR = c("x", "knots", "Boundary.knots", "trim",
+                      "intercept", "derivs", "integral")
     )
 }

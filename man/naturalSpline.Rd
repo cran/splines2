@@ -2,6 +2,8 @@
 % Please edit documentation in R/naturalSpline.R
 \name{naturalSpline}
 \alias{naturalSpline}
+\alias{nsp}
+\alias{nsk}
 \title{Natural Cubic Spline Basis for Polynomial Splines}
 \usage{
 naturalSpline(
@@ -10,6 +12,31 @@ naturalSpline(
   knots = NULL,
   intercept = FALSE,
   Boundary.knots = NULL,
+  trim = 0,
+  derivs = 0L,
+  integral = FALSE,
+  ...
+)
+
+nsp(
+  x,
+  df = NULL,
+  knots = NULL,
+  intercept = FALSE,
+  Boundary.knots = NULL,
+  trim = 0,
+  derivs = 0L,
+  integral = FALSE,
+  ...
+)
+
+nsk(
+  x,
+  df = NULL,
+  knots = NULL,
+  intercept = FALSE,
+  Boundary.knots = NULL,
+  trim = 0,
   derivs = 0L,
   integral = FALSE,
   ...
@@ -30,7 +57,8 @@ the specified \code{df} will be ignored.}
 \item{knots}{The internal breakpoints that define the splines.  The default
 is \code{NULL}, which results in a basis for ordinary polynomial
 regression.  Typical values are the mean or median for one knot,
-quantiles for more knots.}
+quantiles for more knots.  For periodic splines, the number of knots
+must be greater or equal to the specified \code{degree - 1}.}
 
 \item{intercept}{If \code{TRUE}, the complete basis matrix will be returned.
 Otherwise, the first basis will be excluded from the output.}
@@ -39,7 +67,18 @@ Otherwise, the first basis will be excluded from the output.}
 default, they are the range of \code{x} excluding \code{NA}.  If both
 \code{knots} and \code{Boundary.knots} are supplied, the basis
 parameters do not depend on \code{x}. Data can extend beyond
-\code{Boundary.knots}.}
+\code{Boundary.knots}.  For periodic splines, the specified bounary
+knots define the cyclic interval.}
+
+\item{trim}{The fraction (0 to 0.5) of observations to be trimmed from each
+end of \code{x} before placing the default internal and boundary knots.
+This argument will be ignored if \code{Boundary.knots} is specified.
+The default value is \code{0} for backward compatability, which sets the
+boudary knots as the range of |code{x}.  If a positive fraction is
+specified, the default boundary knots will be equivalent to
+\code{quantile(x, probs = c(trim, 1 - trim), na.rm = TRUE)}, which can
+be a more sensible choice in practice due to the existence of outliers.
+The default internal knots are placed within the boundary afterwards.}
 
 \item{derivs}{A nonnegative integer specifying the order of derivatives of
 natural splines. The default value is \code{0L} for the spline basis
@@ -59,22 +98,45 @@ A numeric matrix of \code{length(x)} rows and \code{df}
     usage of other functions in this package.
 }
 \description{
-Generates the nonnegative natural cubic spline basis matrix, the
-corresponding integrals (from the left boundary knot), or derivatives of
-given order.  Each basis is assumed to follow a linear trend for \code{x}
-outside of boundary.
+Functions \code{naturalSpline()} and \code{nsk()} generate the natural cubic
+spline basis functions, the corresponding derivatives or integrals (from the
+left boundary knot).  Both of them are different from \code{splines::ns()}.
+However, for a given model fitting procedure, using different variants of
+spline basis functions should result in identical prediction values.  The
+coefficient estimates of the spline basis functions returned by \code{nsk()}
+are more interpretable compared to \code{naturalSpline()} or
+\code{splines::ns()} .
 }
 \details{
-It is an implementation of the natural spline basis based on B-spline basis,
-which utilizes the close-form null space that can be derived from the
-recursive formula for the second derivatives of B-splines.  The constructed
-spline basis functions are intended to be nonnegative within boundary with
-second derivatives being zeros at boundary knots.
+The constructed spline basis functions from \code{naturalSpline()} are
+nonnegative within boundary with the second derivatives being zeros at
+boundary knots.  The implementation utilizes the close-form null space that
+can be derived from the recursive formula for the second derivatives of
+B-splines.  The function \code{nsp()} is an alias of \code{naturalSpline()}
+to encourage the use in a model formula.
 
-A similar implementation is provided by \code{splines::ns}, which uses QR
-decomposition to find the null space of the second derivatives of B-spline
-basis at boundary knots.  However, there is no guarantee that the resulting
-basis functions are nonnegative within boundary.
+The function \code{nsk()} produces another variant of natural cubic spline
+matrix such that only one of the basis functions is nonzero and takes a
+value of one at every boundary and internal knot.  As a result, the
+coefficients of the resulting fit are the values of the spline function at
+the knots, which makes it easy to interpret the coefficient estimates.  In
+other words, the coefficients of a linear model will be the heights of the
+function at the knots if \code{intercept = TRUE}.  If \code{intercept =
+FALSE}, the coefficients will be the change in function value between each
+knot.  This implementation closely follows the function \code{nsk()} of the
+\pkg{survival} package (version 3.2-8).  The idea corresponds directly to
+the physical implementation of a spline by passing a flexible strip of wood
+or metal through a set of fixed points, which is a traditional way to create
+smooth shapes for things like a ship hull.
+
+The returned basis matrix can be obtained by transforming the corresponding
+B-spline basis matrix with the matrix \code{H} provided in the attribute of
+the returned object.  Each basis is assumed to follow a linear trend for
+\code{x} outside of boundary.  A similar implementation is provided by
+\code{splines::ns}, which uses QR decomposition to find the null space of
+the second derivatives of B-spline basis at boundary knots.  See
+Supplementray Materials of Wang and Yan (2021) for a more detailed
+introduction.
 }
 \examples{
 library(splines2)
@@ -82,27 +144,44 @@ library(splines2)
 x <- seq.int(0, 1, 0.01)
 knots <- c(0.3, 0.5, 0.6)
 
-## natural spline basis
+## naturalSpline()
 nsMat0 <- naturalSpline(x, knots = knots, intercept = TRUE)
-## integrals
 nsMat1 <- naturalSpline(x, knots = knots, intercept = TRUE, integral = TRUE)
-## first derivatives
 nsMat2 <- naturalSpline(x, knots = knots, intercept = TRUE, derivs = 1)
-## second derivatives
 nsMat3 <- naturalSpline(x, knots = knots, intercept = TRUE, derivs = 2)
 
 op <- par(mfrow = c(2, 2), mar = c(2.5, 2.5, 0.2, 0.1), mgp = c(1.5, 0.5, 0))
-matplot(x, nsMat0, type = "l", ylab = "basis")
-matplot(x, nsMat1, type = "l", ylab = "integral")
-matplot(x, nsMat2, type = "l", ylab = "1st derivative")
-matplot(x, nsMat3, type = "l", ylab = "2nd derivative")
+plot(nsMat0, ylab = "basis")
+plot(nsMat1, ylab = "integral")
+plot(nsMat2, ylab = "1st derivative")
+plot(nsMat3, ylab = "2nd derivative")
 par(op) # reset to previous plotting settings
+
+## nsk()
+nskMat <- nsk(x, knots = knots, intercept = TRUE)
+plot(nskMat, ylab = "nsk()", mark_knots = "all")
+abline(h = 1, col = "red", lty = 3)
 
 ## use the deriv method
 all.equal(nsMat0, deriv(nsMat1), check.attributes = FALSE)
 all.equal(nsMat2, deriv(nsMat0))
 all.equal(nsMat3, deriv(nsMat2))
 all.equal(nsMat3, deriv(nsMat0, 2))
+
+## a linear model example
+fit1 <- lm(weight ~ -1 + nsk(height, df = 4, intercept = TRUE), data = women)
+fit2 <- lm(weight ~ nsk(height, df = 3), data = women)
+
+## the knots (same for both fits)
+knots <- unlist(attributes(fit1$model[[2]])[c('Boundary.knots', 'knots')])
+
+## predictions at the knot points
+predict(fit1, data.frame(height = sort(unname(knots))))
+unname(coef(fit1)) # equal to the coefficient estimates
+
+## different interpretation when "intercept = FALSE"
+unname(coef(fit1)[-1] - coef(fit1)[1]) # differences: yhat[2:4] - yhat[1]
+unname(coef(fit2))[-1]                 # ditto
 }
 \seealso{
 \code{\link{bSpline}} for B-splines;

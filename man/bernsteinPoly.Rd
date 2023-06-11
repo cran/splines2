@@ -2,9 +2,20 @@
 % Please edit documentation in R/bernsteinPoly.R
 \name{bernsteinPoly}
 \alias{bernsteinPoly}
-\title{Generalized Bernstein Polynomial Basis}
+\alias{bpoly}
+\title{Generalized Bernstein Polynomial Basis Functions}
 \usage{
 bernsteinPoly(
+  x,
+  degree = 3,
+  intercept = FALSE,
+  Boundary.knots = NULL,
+  derivs = 0L,
+  integral = FALSE,
+  ...
+)
+
+bpoly(
   x,
   degree = 3,
   intercept = FALSE,
@@ -38,12 +49,20 @@ Bernstein polynomials will be returned.  The default value is
 \item{...}{Optional arguments that are not used.}
 }
 \value{
-A numeric matrix of dimension \code{length(x)} by \code{degree +
-    as.integer(intercept)}.
+A \code{BernsteinPoly} object that is essentially a numeric matrix
+    of dimension \code{length(x)} by \code{degree + as.integer(intercept)}.
 }
 \description{
-Returns a generalized Bernstein polynomial basis matrix of given degree over
-a specified range.
+Returns generalized Bernstein polynomial basis functions of the given degree
+over the specified range.
+}
+\details{
+The Bernstein polynomial basis functions are defined over the support from 0
+to 1.  The generalized Bernstein polynomial basis functions extend the
+support to any finite interval in the real line.
+
+The function \code{bpoly()} is an alias to encourage the use in a model
+formula.
 }
 \examples{
 library(splines2)
@@ -57,9 +76,9 @@ bMat1 <- bernsteinPoly(x1, degree = 4, intercept = TRUE)
 ## generalized Bernstein polynomials basis over [- 2, 2]
 bMat2 <- bernsteinPoly(x2, degree = 4, intercept = TRUE)
 
-op <- par(mfrow = c(1, 2), mar = c(2.5, 2.5, 0.2, 0.1), mgp = c(1.5, 0.5, 0))
-matplot(x1, bMat1, type = "l", ylab = "y")
-matplot(x2, bMat2, type = "l", ylab = "y")
+op <- par(mfrow = c(1, 2))
+plot(bMat1)
+plot(bMat2)
 
 ## the first and second derivative matrix
 d1Mat1 <- bernsteinPoly(x1, degree = 4, derivs = 1, intercept = TRUE)
@@ -68,10 +87,10 @@ d1Mat2 <- bernsteinPoly(x2, degree = 4, derivs = 1, intercept = TRUE)
 d2Mat2 <- bernsteinPoly(x2, degree = 4, derivs = 2, intercept = TRUE)
 
 par(mfrow = c(2, 2))
-matplot(x1, d1Mat1, type = "l", ylab = "y")
-matplot(x2, d1Mat2, type = "l", ylab = "y")
-matplot(x1, d2Mat1, type = "l", ylab = "y")
-matplot(x2, d2Mat2, type = "l", ylab = "y")
+plot(d1Mat1)
+plot(d1Mat2)
+plot(d2Mat1)
+plot(d2Mat2)
 
 ## reset to previous plotting settings
 par(op)

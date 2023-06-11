@@ -1,13 +1,15 @@
 ## helper function
 get_predvars <- function(mod, key_attr) {
     out <- as.list(attr(terms(mod$model), "predvars")[[3]])[key_attr]
-    if (anyNA(names(out)))
+    if (any(sapply(out, is.null)))
         stop("Found not matched key attribute.")
+    out
 }
 get_attr <- function(x, key_attr) {
     out <- attributes(x)[key_attr]
-    if (anyNA(names(out)))
+    if (any(sapply(out, is.null)))
         stop("Found not matched key attribute.")
+    out
 }
 
 ## simulated data
@@ -17,8 +19,9 @@ y <- x + rnorm(n, sd = 0.1)
 new_x <- runif(2 * n, min(x), max(x))
 
 ## bSpline()
-mod <- lm(y ~ bSpline(x, df = 6))
-key_attr <- c("degree", "knots", "Boundary.knots", "intercept")
+mod <- lm(y ~ bsp(x, df = 6))
+key_attr <- c("degree", "knots", "Boundary.knots", "intercept",
+              "periodic", "derivs", "integral")
 expect_equal(
     get_attr(bSpline(x, df = 6), key_attr),
     get_predvars(mod, key_attr)
@@ -29,13 +32,23 @@ pred1 <- predict(mod, data.frame(x = new_x))
 pred2 <- coef(mod)[1L] + as.numeric(new_mat %*% coef(mod)[- 1L])
 expect_equivalent(pred1, pred2)
 
+## design matrix
+X <- bsp(x, df = 6)
+mod <- lm(y ~ X)
+expect_error(get_predvars(mod, key_attr), "not matched key attribute")
+
 ## naturalSpline()
 mod <- lm(y ~ naturalSpline(x, df = 6))
 key_attr <- c("knots", "Boundary.knots", "intercept")
 expect_equal(
-    get_attr(naturalSpline(x, df = 6), key_attr),
+    get_attr(nsp(x, df = 6), key_attr),
     get_predvars(mod, key_attr)
 )
+
+## design matrix
+X <- nsp(x, df = 6)
+mod <- lm(y ~ X)
+expect_error(get_predvars(mod, key_attr), "not matched key attribute")
 
 ## mSpline()
 mod <- lm(y ~ mSpline(x, df = 6))

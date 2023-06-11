@@ -96,9 +96,9 @@ namespace splines2 {
 
     // quantile function
     // reference: Hyndman and Fan (1996)
-    inline arma::vec arma_quantile(const arma::vec& x,
-                                   const arma::vec& probs,
-                                   const unsigned int type = 7)
+    inline arma::vec quantile(const arma::vec& x,
+                              const arma::vec& probs,
+                              const unsigned int type = 7)
     {
         double alpha { 0 }, beta { 0 };
         switch(type) {
@@ -144,6 +144,15 @@ namespace splines2 {
         return res;
     }
 
+    // x of length inside (start, end) from seq(start, end, length.out + 2)
+    inline arma::vec linspace_inside(const double start,
+                                     const double end,
+                                     const unsigned int length)
+    {
+        arma::vec out { arma::linspace(start, end, length + 2) };
+        return out.subvec(1, length);
+    }
+
     // inline handy functions
     inline arma::vec mat2vec(const arma::mat& x) {
         return arma::conv_to<arma::vec>::from(x);
@@ -161,6 +170,10 @@ namespace splines2 {
     template <typename T>
     inline Rcpp::NumericVector arma2rvec(const T& x) {
         return Rcpp::NumericVector(x.begin(), x.end());
+    }
+    template <typename T>
+    inline Rcpp::IntegerVector arma2ivec(const T& x) {
+        return Rcpp::IntegerVector(x.begin(), x.end());
     }
     // convert Rcpp::NumericVector to arma::colvec
     template <typename T>

@@ -2,6 +2,7 @@
 % Please edit documentation in R/cSpline.R
 \name{cSpline}
 \alias{cSpline}
+\alias{csp}
 \title{C-Spline Basis for Polynomial Splines}
 \usage{
 cSpline(
@@ -13,6 +14,20 @@ cSpline(
   Boundary.knots = NULL,
   derivs = 0L,
   scale = TRUE,
+  warn.outside = getOption("splines2.warn.outside", TRUE),
+  ...
+)
+
+csp(
+  x,
+  df = NULL,
+  knots = NULL,
+  degree = 3L,
+  intercept = TRUE,
+  Boundary.knots = NULL,
+  derivs = 0L,
+  scale = TRUE,
+  warn.outside = getOption("splines2.warn.outside", TRUE),
   ...
 )
 }
@@ -24,13 +39,18 @@ returned as they are.}
 matrix.  One can specify \code{df} rather than \code{knots}, then the
 function chooses \code{df - degree - as.integer(intercept)} internal
 knots at suitable quantiles of \code{x} ignoring missing values and
-those \code{x} outside of the boundary.  If internal knots are specified
-via \code{knots}, the specified \code{df} will be ignored.}
+those \code{x} outside of the boundary.  For periodic splines, \code{df
+- as.integer(intercept)} internal knots will be chosen at suitable
+quantiles of \code{x} relative to the beginning of the cyclic intervals
+they belong to (see Examples) and the number of internal knots must be
+greater or equal to the specified \code{degree - 1}.  If internal knots
+are specified via \code{knots}, the specified \code{df} will be ignored.}
 
 \item{knots}{The internal breakpoints that define the splines.  The default
 is \code{NULL}, which results in a basis for ordinary polynomial
 regression.  Typical values are the mean or median for one knot,
-quantiles for more knots.}
+quantiles for more knots.  For periodic splines, the number of knots
+must be greater or equal to the specified \code{degree - 1}.}
 
 \item{degree}{The degree of C-spline defined to be the degree of the
 associated M-spline instead of actual polynomial degree. For example,
@@ -47,7 +67,8 @@ the model.}
 default, they are the range of \code{x} excluding \code{NA}.  If both
 \code{knots} and \code{Boundary.knots} are supplied, the basis
 parameters do not depend on \code{x}. Data can extend beyond
-\code{Boundary.knots}.}
+\code{Boundary.knots}.  For periodic splines, the specified bounary
+knots define the cyclic interval.}
 
 \item{derivs}{A nonnegative integer specifying the order of derivatives of
 C-splines. The default value is \code{0L} for C-spline basis functions.}
@@ -57,14 +78,20 @@ C-splines. The default value is \code{0L} for C-spline basis functions.}
 height at right boundary knot. The corresponding I-spline and M-spline
 produced by \code{deriv} methods will be scaled to the same extent.}
 
+\item{warn.outside}{A logical value indicating if a warning should be thrown
+out when any \code{x} is outside the boundary.  This option can also be
+set through \code{options("splines2.warn.outside")} after the package is
+loaded.}
+
 \item{...}{Optional arguments that are not used.}
 }
 \value{
 A numeric matrix of \code{length(x)} rows and \code{df} columns if
-    \code{df} is specified or \code{length(knots) + degree +
-    as.integer(intercept)} columns if \code{knots} are specified instead.
-    Attributes that correspond to the arguments specified are returned
-    mainly for other functions in this package.
+    \code{df} is specified.  If \code{knots} are specified instead, the
+    output matrix will consist of \code{length(knots) + degree +
+    as.integer(intercept)} columns.  Attributes that correspond to the
+    arguments specified are returned for usage of other functions in this
+    package.
 }
 \description{
 Generates the convex regression spline (called C-spline) basis matrix by
@@ -73,7 +100,8 @@ derivatives.
 }
 \details{
 It is an implementation of the closed-form C-spline basis derived from the
-recursion formula of I-splines and M-splines.
+recursion formula of I-splines and M-splines.  The function \code{csp()} is
+an alias of to encourage the use in a model formula.
 }
 \examples{
 library(splines2)
@@ -84,16 +112,11 @@ knots <- c(0.3, 0.5, 0.6)
 ### when 'scale = TRUE' (by default)
 csMat <- cSpline(x, knots = knots, degree = 2)
 
-op <- par(mar = c(2.5, 2.5, 0.2, 0.1), mgp = c(1.5, 0.5, 0))
-matplot(x, csMat, type = "l", ylab = "C-spline basis")
-abline(v = knots, lty = 2, col = "gray")
+plot(csMat, ylab = "C-spline basis", mark_knots = "internal")
 isMat <- deriv(csMat)
 msMat <- deriv(csMat, derivs = 2)
-matplot(x, isMat, type = "l", ylab = "scaled I-spline basis")
-matplot(x, msMat, type = "l", ylab = "scaled M-spline basis")
-
-## reset to previous plotting settings
-par(op)
+plot(isMat, ylab = "scaled I-spline basis")
+plot(msMat, ylab = "scaled M-spline basis")
 
 ### when 'scale = FALSE'
 csMat <- cSpline(x, knots = knots, degree = 2, scale = FALSE)

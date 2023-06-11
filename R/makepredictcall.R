@@ -18,92 +18,117 @@
 ## reference: splines:::makepredictcall
 
 ##' @importFrom stats makepredictcall
-helper_makepredictcall <- function(var, call, fun, key_attr)
+helper_makepredictcall <- function(var, call, .FUN, .KEY_ATTR)
 {
-    fun_symbol <- substitute(fun)
+    fun_symbol <- substitute(.FUN)
     fun_name <- as.character(fun_symbol)
-    if (as.character(call)[1L] == fun_name ||
-        (is.call(call) && identical(eval(call[[1L]]), eval(fun_symbol)))) {
-        at <- attributes(var)[key_attr]
-        call <- call[1L:2L]
-        call[names(at)] <- at
+    ## remedy for dbs and ibs
+    flag <- if (fun_name == "bSpline") {
+                flag <- grepl(c("^(splines2::)?(bSpline|bsp|dbs|ibs)$"),
+                              as.character(call)[1L])
+                flag || {
+                    is.call(call) && {
+                        tmp <- eval(call[[1L]])
+                        (identical(tmp, bSpline) ||
+                         identical(tmp, dbs) ||
+                         identical(tmp, ibs))
+                    }
+                }
+            } else {
+                as.character(call)[1L] == fun_name ||
+                    (is.call(call) &&
+                     identical(eval(call[[1L]]), eval(fun_symbol)))
+            }
+    ## not much we can do for customized wrap functions
+    ## that return the basis functions
+    if (flag) {
+        ## throw warnings instead
+        res <- tryCatch(check_attr(var, .KEY_ATTR), error = function(e) e)
+        if (inherits(res, "error")) {
+            warning(res, call. = FALSE)
+        } else {
+            at <- attributes(var)[.KEY_ATTR]
+            call <- call[1L:2L]
+            call[names(at)] <- at
+        }
     }
+    ## return
     call
 }
 
 ##' @export
-makepredictcall.bSpline2 <- function(var, call)
+makepredictcall.BSpline <- function(var, call)
 {
     helper_makepredictcall(
-        var, call, fun = bSpline,
-        key_attr = c("degree", "knots", "Boundary.knots", "intercept",
-                     "derivs", "integral")
+        var, call,
+        .FUN = bSpline,
+        .KEY_ATTR = c("degree", "knots", "Boundary.knots", "intercept",
+                      "periodic", "derivs", "integral")
     )
 }
 
 ##' @export
-makepredictcall.naturalSpline <- function(var, call)
+makepredictcall.NaturalSpline <- function(var, call)
 {
     helper_makepredictcall(
-        var, call, fun = naturalSpline,
-        key_attr = c("knots", "Boundary.knots", "intercept",
-                     "derivs", "integral")
+        var, call,
+        .FUN = naturalSpline,
+        .KEY_ATTR = c("knots", "Boundary.knots", "trim",
+                      "intercept", "derivs", "integral")
     )
 }
 
 ##' @export
-makepredictcall.dbs <- function(var, call)
+makepredictcall.NaturalSplineK <- function(var, call)
 {
     helper_makepredictcall(
-        var, call, fun = dbs,
-        key_attr = c("degree", "knots", "Boundary.knots", "intercept", "derivs")
+        var, call,
+        .FUN = nsk,
+        .KEY_ATTR = c("knots", "Boundary.knots", "trim",
+                      "intercept", "derivs", "integral")
     )
 }
 
 ##' @export
-makepredictcall.ibs <- function(var, call)
+makepredictcall.MSpline <- function(var, call)
 {
     helper_makepredictcall(
-        var, call, fun = ibs,
-        key_attr = c("degree", "knots", "Boundary.knots", "intercept")
+        var, call,
+        .FUN = mSpline,
+        .KEY_ATTR = c("degree", "knots", "Boundary.knots", "intercept",
+                      "periodic", "derivs", "integral")
     )
 }
 
 ##' @export
-makepredictcall.mSpline <- function(var, call)
+makepredictcall.ISpline <- function(var, call)
 {
     helper_makepredictcall(
-        var, call, fun = mSpline,
-        key_attr = c("degree", "knots", "Boundary.knots", "intercept",
-                     "periodic", "derivs", "integral")
+        var, call,
+        .FUN = iSpline,
+        .KEY_ATTR = c("degree", "knots", "Boundary.knots", "intercept",
+                      "derivs")
     )
 }
 
 ##' @export
-makepredictcall.iSpline <- function(var, call)
+makepredictcall.CSpline <- function(var, call)
 {
     helper_makepredictcall(
-        var, call, fun = iSpline,
-        key_attr = c("degree", "knots", "Boundary.knots", "intercept", "derivs")
+        var, call,
+        .FUN = cSpline,
+        .KEY_ATTR = c("degree", "knots", "Boundary.knots", "intercept",
+                      "derivs", "scale")
     )
 }
 
 ##' @export
-makepredictcall.cSpline <- function(var, call)
+makepredictcall.BernsteinPoly <- function(var, call)
 {
     helper_makepredictcall(
-        var, call, fun = cSpline,
-        key_attr = c("degree", "knots", "Boundary.knots", "intercept",
-                     "derivs", "scale")
-    )
-}
-
-##' @export
-makepredictcall.bernsteinPoly <- function(var, call)
-{
-    helper_makepredictcall(
-        var, call, fun = bernsteinPoly,
-        key_attr = c("degree", "Boundary.knots", "intercept",
-                     "derivs", "integral")
+        var, call,
+        .FUN = bernsteinPoly,
+        .KEY_ATTR = c("degree", "Boundary.knots", "intercept",
+                      "derivs", "integral")
     )
 }
