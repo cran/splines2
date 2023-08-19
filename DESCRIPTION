@@ -1,6 +1,6 @@
 Package: splines2
 Title: Regression Spline Functions and Classes
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: c(
     person(given = "Wenjie", family = "Wang",
            email = "wang@wwenjie.org",
@@ -9,11 +9,11 @@ Authors@R: c(
     person(given = "Jun", family = "Yan", role = "aut",
            comment = c(ORCID = "0000-0003-4401-7296"))
     )
-Description: Constructs basis matrix of B-splines, M-splines,
-    I-splines, convex splines (C-splines), periodic M-splines,
+Description: Constructs basis functions of B-splines, M-splines,
+    I-splines, convex splines (C-splines), periodic splines,
     natural cubic splines, generalized Bernstein polynomials,
-    and their integrals (except C-splines) and derivatives
-    of given order by close-form recursive formulas.
+    their derivatives, and integrals (except C-splines)
+    by closed-form recursive formulas.
     It also contains a C++ head-only library integrated with Rcpp.
     See Wang and Yan (2021) <doi:10.6339/21-JDS1020> for details.
 Imports: stats, graphics, Rcpp
@@ -28,9 +28,9 @@ BugReports: https://github.com/wenjie2wang/splines2/issues
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 NeedsCompilation: yes
-Packaged: 2023-06-11 17:56:08 UTC; wenjie
+Packaged: 2023-08-19 18:24:19 UTC; wenjie
 Author: Wenjie Wang [aut, cre] (<https://orcid.org/0000-0003-0363-3180>),
   Jun Yan [aut] (<https://orcid.org/0000-0003-4401-7296>)
 Maintainer: Wenjie Wang <wang@wwenjie.org>
 Repository: CRAN
-Date/Publication: 2023-06-11 20:10:02 UTC
+Date/Publication: 2023-08-19 20:00:07 UTC
