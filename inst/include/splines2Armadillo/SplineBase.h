@@ -1,6 +1,6 @@
 //
 // R package splines2 by Wenjie Wang and Jun Yan
-// Copyright (C) 2016-2023
+// Copyright (C) 2016-2024
 //
 // This file is part of the R package splines2.
 //
@@ -286,10 +286,11 @@ namespace splines2 {
         // check if simple knot sequence
         inline virtual void stopifnot_simple_knot_sequence() const
         {
-            if (has_internal_multiplicity_ || is_extended_knot_sequence_) {
-                throw std::range_error(
-                    "Expected a simple knot sequence."
-                    );
+            if (has_internal_multiplicity_) {
+                throw std::range_error("Found duplicated internal knots");
+            }
+            if (is_extended_knot_sequence_) {
+                throw std::range_error("Expected a simple knot sequence.");
             }
         }
 

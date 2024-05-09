@@ -161,6 +161,11 @@ deriv_ispline3 <- c(predict(deriv(isMat), newx = new_x) %*% beta)
 stopifnot(all.equal(deriv_ispline1, deriv_ispline2))
 stopifnot(all.equal(deriv_ispline2, deriv_ispline3))
 
+## ----plot-coef----------------------------------------------------------------
+beta <- seq.int(0.2, length.out = ncol(nskMat), by = 0.2)
+plot(nskMat, ylab = "nsk()", mark_knots = "all", coef = beta)
+abline(h = beta, col = seq_along(beta), lty = 3)
+
 ## ----formula-alias------------------------------------------------------------
 b <- bSpline # create an alias for B-splines
 mod1 <- lm(weight ~ b(height, degree = 1, df = 3), data = women)

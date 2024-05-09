@@ -1,6 +1,6 @@
 ##
 ## R package splines2 by Wenjie Wang and Jun Yan
-## Copyright (C) 2016-2023
+## Copyright (C) 2016-2024
 ##
 ## This file is part of the R package splines2.
 ##
@@ -55,6 +55,7 @@
 ##'     regression.  Typical values are the mean or median for one knot,
 ##'     quantiles for more knots.  For periodic splines, the number of knots
 ##'     must be greater or equal to the specified \code{degree - 1}.
+##'     Duplicated internal knots are not allowed.
 ##' @param degree A nonnegative integer specifying the degree of the piecewise
 ##'     polynomial. The default value is \code{3} for cubic splines. Zero degree
 ##'     is allowed for piecewise constant basis functions.
