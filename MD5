@@ -1,6 +1,6 @@
-f80fef990d14e10e83b53fe5c9d89ec8 *DESCRIPTION
+42c598f81286d785e5166dfda78d8dde *DESCRIPTION
 bcc21228edc85b98332c9410bfc08dcd *NAMESPACE
-b0655502e8c2371efb27ab55f3f374bb *NEWS.md
+f6d6add04159a50527851701ef52df79 *NEWS.md
 68a43fe4d30924665636b6ab92e6def2 *R/RcppExports.R
 24a962d31061ff3bd47b226a042867ac *R/bSpline.R
 775e471da6f79f3c86fc923654563e10 *R/bernsteinPoly.R
@@ -21,13 +21,13 @@ c54b9777ea162579601ca730540fca63 *R/update.R
 92ba1913e1769002f690ddbbaeae2081 *R/zzz.R
 9a2ea81fc897213961852122a990d537 *README.md
 48a66a688bbb190d49988b386b99d51c *build/vignette.rds
-22a4d5aa9f96d183a4bc3db2ea48433c *inst/CITATION
+360382113d8243ed516ad7a51976e6c8 *inst/CITATION
 83e11a62d0abf8387bfcf8310693b0b8 *inst/bib/splines2.bib
 9e409ffa90725fee7a5d9d7b6ef09e85 *inst/doc/splines2-intro.R
 baa6bfe2c8618d851c720147eff5a2de *inst/doc/splines2-intro.Rmd
-f598b1819ed88075d3511102a0f1fc09 *inst/doc/splines2-intro.html
+9402169de71de5fad91a1b57aa12da90 *inst/doc/splines2-intro.html
 101b59ecbfce0dd8762a3bbe473b1407 *inst/doc/splines2-wi-rcpp.Rmd
-95909971b6b12220a4b198a7848a167a *inst/doc/splines2-wi-rcpp.html
+0a8e8f4a7b9d744414e04e0d8b668022 *inst/doc/splines2-wi-rcpp.html
 1b4278b7f20aee4e8f67233232f9ddfb *inst/examples/ex-bSpline.R
 843d187e13f2ced3fa891796cf826275 *inst/examples/ex-bernsteinPoly.R
 31109e342cd3f84236b3647225f95e6d *inst/examples/ex-cSpline.R
@@ -46,7 +46,7 @@ eb5090e9191419bb8fe33ab9c2f15965 *inst/examples/ex-update.R
 cdc2cd529975d3b5bd3727385f870c53 *inst/include/splines2Armadillo/MSpline.h
 29d2ff76e826a1d6e75b0fd86e9f52f0 *inst/include/splines2Armadillo/NaturalSpline.h
 b65d53875ab5003afc2afd6aac5b9334 *inst/include/splines2Armadillo/NaturalSplineK.h
-690d0e354ec2ca192f89490facfeadbb *inst/include/splines2Armadillo/PeriodicSpline.h
+247661f45d87a6ef9cc2544b0bac563b *inst/include/splines2Armadillo/PeriodicSpline.h
 e4aba4c9c7e3b63bd91e25d453f67327 *inst/include/splines2Armadillo/SplineBase.h
 2763a3391548137d989ff8f32f5e4c1d *inst/include/splines2Armadillo/common.h
 4dba205d45f9465e05eeea6b415b77ea *inst/include/splines2Armadillo/utils.h
